@@ -23,7 +23,7 @@ class _BuyerCatalogScreenState extends State<BuyerCatalogScreen> {
       'stock': '45 kg',
       'isBestSeller': true,
       'isPreOrder': false,
-      'imageUrl': 'https://via.placeholder.com/342x224/0077B6/FFFFFF?text=Ikan+Nila',
+      'imageUrl': 'assets/images/nilaMerah.png',
     },
     {
       'name': 'Ikan Bawal Bintang',
@@ -32,7 +32,7 @@ class _BuyerCatalogScreenState extends State<BuyerCatalogScreen> {
       'stock': 'Besok Pagi',
       'isBestSeller': false,
       'isPreOrder': true,
-      'imageUrl': 'https://via.placeholder.com/342x224/023E8A/FFFFFF?text=Ikan+Bawal',
+      'imageUrl': 'assets/images/bawalBintang.png',
     },
     {
       'name': 'Ikan Lele Sangkuriang',
@@ -41,7 +41,7 @@ class _BuyerCatalogScreenState extends State<BuyerCatalogScreen> {
       'stock': '80 kg',
       'isBestSeller': false,
       'isPreOrder': false,
-      'imageUrl': 'https://via.placeholder.com/342x224/0096C7/FFFFFF?text=Ikan+Lele',
+      'imageUrl': 'assets/images/leleSangkuriang.png',
     },
   ];
 
@@ -472,7 +472,7 @@ class _BuyerCatalogScreenState extends State<BuyerCatalogScreen> {
                   height: 224,
                   width: double.infinity,
                   color: const Color(0xFFE2E8F0),
-                  child: Image.network(
+                  child: Image.asset(
                     product['imageUrl'],
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {

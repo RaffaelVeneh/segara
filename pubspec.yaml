@@ -46,6 +46,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -93,3 +94,16 @@ flutter:
     - assets/icons/
     - assets/fonts/
     - assets/data/
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/logo-segara.png"
+  adaptive_icon_background: "#0077B6"
+  adaptive_icon_foreground: "assets/icons/logo-segara.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  # Tambahkan padding agar logo tidak terlalu besar di adaptive icon
+  # Nilai dalam pixels yang akan ditambahkan sebagai margin
+  adaptive_icon_padding: 20

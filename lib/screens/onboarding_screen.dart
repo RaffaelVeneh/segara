@@ -20,7 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           'Dapatkan kualitas terbaik ikan air tawar\ndengan sistem pemeliharaan organik\nyang terjamin kebersihannya.',
       badge: 'Segar & Alami',
       badgeIcon: Icons.eco_outlined,
-      imageUrl: 'https://placehold.co/357x407',
+      imageUrl: 'assets/images/fish.png',
     ),
     OnboardingSlide(
       title: 'Transaksi Mudah\n& Terpercaya',
@@ -29,7 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           'Platform digital yang menghubungkan\npembudidaya dengan pembeli secara\nlangsung tanpa perantara.',
       badge: 'Marketplace',
       badgeIcon: Icons.store_outlined,
-      imageUrl: 'https://placehold.co/340x387',
+      imageUrl: 'assets/images/marketplace.jpg',
     ),
     OnboardingSlide(
       title: 'Tumbuh Bersama\nKomunitas',
@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           'Bergabung dengan ribuan pembudidaya\nlainnya untuk saling berbagi ilmu dan\npengalaman.',
       badge: 'Komunitas',
       badgeIcon: Icons.people_outline,
-      imageUrl: 'https://placehold.co/340x387',
+      imageUrl: 'assets/images/komunitas.png',
     ),
   ];
 
@@ -327,13 +327,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: Stack(
                       children: [
-                        // Placeholder for image - replace with actual image
-                        Center(
-                          child: Icon(
-                            slide.badgeIcon,
-                            size: 120,
-                            color: const Color(0xFF0077B6).withOpacity(0.3),
-                          ),
+                        // Image from assets
+                        Image.asset(
+                          slide.imageUrl,
+                          width: double.infinity,
+                          height: 387.39,
+                          fit: BoxFit.cover,
                         ),
                         // Gradient overlay
                         Container(
@@ -400,7 +399,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // Text content
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -416,29 +415,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Title
                     RichText(
                       text: TextSpan(
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 23,
                           fontWeight: FontWeight.w700,
-                          height: 1.25,
+                          height: 1.2,
                           color: Color(0xFF0F172A),
                         ),
                         children: _buildTitleSpans(slide.title, slide.highlightWord),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
 
                     // Description
                     Text(
                       slide.description,
                       style: const TextStyle(
                         color: Color(0xFF64748B),
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w400,
-                        height: 1.625,
+                        height: 1.5,
                       ),
                     ),
                   ],

@@ -134,11 +134,12 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                 children: [
                   // Top logos (UNY & KSI)
                   Padding(
-                    padding: const EdgeInsets.only(top: 32, left: 24, right: 24),
+                    padding: const EdgeInsets.only(top: 32),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildLogoIcon('assets/icons/logo-UNY.png'),
+                        const SizedBox(width: 16),
                         _buildLogoIcon('assets/icons/logo-ksi.png'),
                       ],
                     ),
