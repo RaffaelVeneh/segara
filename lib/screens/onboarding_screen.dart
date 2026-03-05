@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'user_selection_screen.dart';
+import 'pilih_pengguna_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -12,33 +12,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingSlide> _slides = [
-    OnboardingSlide(
-      title: 'Ikan Nila Segar\nLangsung dari Kolam',
-      highlightWord: 'Segar',
-      description:
-          'Dapatkan kualitas terbaik ikan air tawar\ndengan sistem pemeliharaan organik\nyang terjamin kebersihannya.',
+  final List<OnboardingData> _pages = [
+    OnboardingData(
       badge: 'Segar & Alami',
-      badgeIcon: Icons.eco_outlined,
-      imageUrl: 'assets/images/fish.png',
-    ),
-    OnboardingSlide(
-      title: 'Transaksi Mudah\n& Terpercaya',
-      highlightWord: 'Mudah',
+      badgeIcon: Icons.eco,
+      title: 'Ikan Nila ',
+      highlightedTitle: 'Segar',
+      titleEnd: '\nLangsung dari Kolam',
       description:
-          'Platform digital yang menghubungkan\npembudidaya dengan pembeli secara\nlangsung tanpa perantara.',
+          'Dapatkan kualitas terbaik ikan air tawar dengan sistem pemeliharaan organik yang terjamin kebersihannya.',
+      imagePath: 'assets/images/onboarding-1.png',
+    ),
+    OnboardingData(
       badge: 'Marketplace',
-      badgeIcon: Icons.store_outlined,
-      imageUrl: 'assets/images/marketplace.jpg',
-    ),
-    OnboardingSlide(
-      title: 'Tumbuh Bersama\nKomunitas',
-      highlightWord: 'Komunitas',
+      badgeIcon: Icons.shopping_bag,
+      title: 'Transaksi ',
+      highlightedTitle: 'Mudah',
+      titleEnd: '\n& Terpercaya',
       description:
-          'Bergabung dengan ribuan pembudidaya\nlainnya untuk saling berbagi ilmu dan\npengalaman.',
+          'Platform digital yang menghubungkan pembudidaya dengan pembeli secara langsung tanpa perantara.',
+      imagePath: 'assets/images/onboarding-2.png',
+    ),
+    OnboardingData(
       badge: 'Komunitas',
-      badgeIcon: Icons.people_outline,
-      imageUrl: 'assets/images/komunitas.png',
+      badgeIcon: Icons.groups,
+      title: 'Tumbuh Bersama\n',
+      highlightedTitle: 'Komunitas',
+      titleEnd: '',
+      description:
+          'Bergabung dengan ribuan pembudidaya lainnya untuk saling berbagi ilmu dan pengalaman.',
+      imagePath: 'assets/images/onboarding-3.png',
     ),
   ];
 
@@ -48,13 +51,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+  }
+
+  void _skip() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const PilihPenggunaScreen()),
+    );
+  }
+
+  void _continue() {
+    if (_currentPage < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const PilihPenggunaScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Stack(
         children: [
-          // Decorative blurred circles
+          // Decorative blur circles
           Positioned(
             left: -80,
             top: -80,
@@ -74,9 +104,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 40,
-                    spreadRadius: 20,
+                    spreadRadius: 40,
                   ),
                 ],
               ),
@@ -102,9 +132,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 40,
-                    spreadRadius: 20,
+                    spreadRadius: 40,
                   ),
                 ],
               ),
@@ -115,9 +145,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           SafeArea(
             child: Column(
               children: [
-                // Top bar
+                // Header
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 24,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -146,13 +179,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       // Skip button
                       GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const UserSelectionScreen(),
-                            ),
-                          );
-                        },
+                        onTap: _skip,
                         child: const Text(
                           'Skip',
                           style: TextStyle(
@@ -170,59 +197,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Expanded(
                   child: PageView.builder(
                     controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemCount: _slides.length,
+                    onPageChanged: _onPageChanged,
+                    itemCount: _pages.length,
                     itemBuilder: (context, index) {
-                      return _buildSlide(_slides[index]);
+                      return _buildPage(_pages[index]);
                     },
                   ),
                 ),
 
-                // Bottom section
-                Container(
+                // Footer
+                Padding(
                   padding: const EdgeInsets.fromLTRB(32, 16, 32, 68),
                   child: Column(
                     children: [
                       // Page indicators
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          _slides.length,
-                          (index) => Container(
-                            margin: EdgeInsets.only(left: index > 0 ? 8 : 0),
-                            width: _currentPage == index ? 24 : 6,
+                        children: List.generate(_pages.length, (index) {
+                          return Container(
+                            width: index == _currentPage ? 24 : 6,
                             height: 6,
+                            margin: EdgeInsets.only(left: index > 0 ? 8 : 0),
                             decoration: BoxDecoration(
-                              color: _currentPage == index
+                              color: index == _currentPage
                                   ? const Color(0xFF0077B6)
                                   : const Color(0xFFCBD5E1),
                               borderRadius: BorderRadius.circular(9999),
                             ),
-                          ),
-                        ),
+                          );
+                        }),
                       ),
                       const SizedBox(height: 24),
 
-                      // Start button
+                      // Continue button
                       GestureDetector(
-                        onTap: () {
-                          if (_currentPage < _slides.length - 1) {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => const UserSelectionScreen(),
-                              ),
-                            );
-                          }
-                        },
+                        onTap: _continue,
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(
@@ -238,23 +247,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               BoxShadow(
                                 color: const Color(0xFF0077B6).withOpacity(0.20),
                                 blurRadius: 15,
-                                offset: const Offset(0, 4),
+                                offset: const Offset(0, 10),
                               ),
                               BoxShadow(
                                 color: const Color(0xFF0077B6).withOpacity(0.20),
-                                blurRadius: 10,
-                                offset: const Offset(0, 10),
+                                blurRadius: 6,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
                                 child: Text(
-                                  'Mulai Sekarang',
-                                  style: TextStyle(
+                                  _currentPage < _pages.length - 1
+                                      ? 'Selanjutnya'
+                                      : 'Mulai Sekarang',
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -289,9 +300,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildSlide(OnboardingSlide slide) {
+  Widget _buildPage(OnboardingData data) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -311,138 +322,147 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
           children: [
             // Image section
-            Stack(
-              children: [
-                // Image
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    height: 387.39,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
+            Expanded(
+              child: Stack(
+                children: [
+                  // Image
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      child: Image.asset(
+                        data.imagePath,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: const Color(0xFFE2E8F0),
+                            child: Center(
+                              child: Icon(
+                                data.badgeIcon,
+                                size: 80,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    child: Stack(
-                      children: [
-                        // Image from assets
-                        Image.asset(
-                          slide.imageUrl,
-                          width: double.infinity,
-                          height: 387.39,
-                          fit: BoxFit.cover,
+                  ),
+                  // Gradient overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.transparent,
+                            Colors.white.withOpacity(0.90),
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
                         ),
-                        // Gradient overlay
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.transparent,
-                                Colors.white.withOpacity(0.90),
-                              ],
-                              stops: const [0.0, 0.5, 1.0],
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Badge
+                  Positioned(
+                    right: 16,
+                    top: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF40916C).withOpacity(0.90),
+                        borderRadius: BorderRadius.circular(9999),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            data.badgeIcon,
+                            color: Colors.white,
+                            size: 10,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            data.badge.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.50,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                // Badge
-                Positioned(
-                  right: 16,
-                  top: 16,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF40916C).withOpacity(0.90),
-                      borderRadius: BorderRadius.circular(9999),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          slide.badgeIcon,
-                          color: Colors.white,
-                          size: 10,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          slide.badge,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
 
-            // Text content
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.white,
-                      Colors.white,
-                      Colors.white.withOpacity(0),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Title
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontSize: 23,
-                          fontWeight: FontWeight.w700,
-                          height: 1.2,
-                          color: Color(0xFF0F172A),
-                        ),
-                        children: _buildTitleSpans(slide.title, slide.highlightWord),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Description
-                    Text(
-                      slide.description,
+            // Text content section
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  RichText(
+                    text: TextSpan(
                       style: const TextStyle(
-                        color: Color(0xFF64748B),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        height: 1.5,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        height: 1.25,
                       ),
+                      children: [
+                        TextSpan(
+                          text: data.title,
+                          style: const TextStyle(color: Color(0xFF0F172A)),
+                        ),
+                        TextSpan(
+                          text: data.highlightedTitle,
+                          style: const TextStyle(color: Color(0xFF0077B6)),
+                        ),
+                        TextSpan(
+                          text: data.titleEnd,
+                          style: const TextStyle(color: Color(0xFF0F172A)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Description
+                  Text(
+                    data.description,
+                    style: const TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      height: 1.625,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -450,43 +470,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  List<TextSpan> _buildTitleSpans(String title, String highlightWord) {
-    final parts = title.split(highlightWord);
-    List<TextSpan> spans = [];
-
-    for (int i = 0; i < parts.length; i++) {
-      spans.add(TextSpan(text: parts[i]));
-      if (i < parts.length - 1) {
-        spans.add(
-          TextSpan(
-            text: highlightWord,
-            style: const TextStyle(
-              color: Color(0xFF0077B6),
-            ),
-          ),
-        );
-      }
-    }
-
-    return spans;
-  }
 }
 
-class OnboardingSlide {
-  final String title;
-  final String highlightWord;
-  final String description;
+class OnboardingData {
   final String badge;
   final IconData badgeIcon;
-  final String imageUrl;
+  final String title;
+  final String highlightedTitle;
+  final String titleEnd;
+  final String description;
+  final String imagePath;
 
-  OnboardingSlide({
-    required this.title,
-    required this.highlightWord,
-    required this.description,
+  OnboardingData({
     required this.badge,
     required this.badgeIcon,
-    required this.imageUrl,
+    required this.title,
+    required this.highlightedTitle,
+    required this.titleEnd,
+    required this.description,
+    required this.imagePath,
   });
 }

@@ -18,13 +18,28 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
-
+    
     // Navigate to onboarding after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const OnboardingScreen(),
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => const OnboardingScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = 0.0;
+              const end = 1.0;
+              const curve = Curves.easeInOut;
+              
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var opacityAnimation = animation.drive(tween);
+              
+              return FadeTransition(
+                opacity: opacityAnimation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 500),
           ),
         );
       }
