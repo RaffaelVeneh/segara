@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role; // 'buyer' or 'mitra'
@@ -68,11 +69,17 @@ class _LoginScreenState extends State<LoginScreen> {
               'Login berhasil sebagai ${widget.role == 'buyer' ? 'Pembeli' : 'Mitra'}!',
             ),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 1),
           ),
         );
 
-        // TODO: Navigate to main screen based on role
-        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen(role: widget.role)));
+        // Navigate to main screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(role: widget.role),
+          ),
+        );
       }
     } else {
       // Login failed
