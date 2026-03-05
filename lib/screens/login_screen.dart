@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'main_screen.dart';
+import 'seller_main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role; // 'buyer' or 'mitra'
@@ -31,6 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
       'email': 'mitra@email.com',
       'password': 'segara123',
     },
+    'seller': {
+      'email': 'seller@email.com',
+      'password': 'segara123',
+    },
   };
 
   @override
@@ -52,11 +57,42 @@ class _LoginScreenState extends State<LoginScreen> {
     // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
 
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    // Check if this is a seller login (regardless of selected role)
+    if (email == _credentials['seller']!['email'] &&
+        password == _credentials['seller']!['password']) {
+      // Seller login success
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login berhasil sebagai Seller!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
+
+        // Navigate to seller main screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SellerMainScreen(),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Check normal buyer/mitra login
     final expectedEmail = _credentials[widget.role]!['email']!;
     final expectedPassword = _credentials[widget.role]!['password']!;
 
-    if (_emailController.text.trim() == expectedEmail &&
-        _passwordController.text == expectedPassword) {
+    if (email == expectedEmail && password == expectedPassword) {
       // Login success
       if (mounted) {
         setState(() {
