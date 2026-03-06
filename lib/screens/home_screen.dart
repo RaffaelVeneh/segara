@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'product_detail_screen.dart';
+import 'cart_screen.dart';
+import 'booking_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String role;
@@ -15,6 +18,108 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedTab = 0; // 0 = Ikan Segar, 1 = Produk Olahan
+  final List<Map<String, dynamic>> _cartItems = [];
+
+  int get _cartItemCount {
+    return _cartItems.fold(0, (sum, item) => sum + (item['quantity'] as int));
+  }
+
+  void _addToCart(Map<String, dynamic> product) {
+    setState(() {
+      // Check if product already exists in cart
+      final existingIndex = _cartItems.indexWhere(
+        (item) => item['name'] == product['name'],
+      );
+
+      if (existingIndex >= 0) {
+        // Increment quantity if already in cart
+        _cartItems[existingIndex]['quantity'] += 1;
+      } else {
+        // Add new item to cart
+        _cartItems.add({
+          'name': product['name'],
+          'price': product['price'],
+          'image': product['image'],
+          'variant': product['description'],
+          'quantity': 1,
+        });
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${product['name']} ditambahkan ke keranjang'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 1),
+        backgroundColor: const Color(0xFF059669),
+      ),
+    );
+  }
+
+  void _openCart() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartScreen(cartItems: _cartItems),
+      ),
+    );
+
+    // Update cart items if modified in cart screen
+    if (result != null && result is List<Map<String, dynamic>>) {
+      setState(() {
+        _cartItems.clear();
+        _cartItems.addAll(result);
+      });
+    }
+  }
+
+  Future<void> _launchShopeeUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tidak dapat membuka Shopee'),
+            backgroundColor: Color(0xFFEF4444),
+          ),
+        );
+      }
+    }
+  }
+
+  int _getItemQuantityInCart(String productName) {
+    final item = _cartItems.firstWhere(
+      (item) => item['name'] == productName,
+      orElse: () => <String, dynamic>{},
+    );
+    return item['quantity'] ?? 0;
+  }
+
+  void _updateCartQuantity(Map<String, dynamic> product, int delta) {
+    setState(() {
+      final existingIndex = _cartItems.indexWhere(
+        (item) => item['name'] == product['name'],
+      );
+
+      if (existingIndex >= 0) {
+        final newQuantity = _cartItems[existingIndex]['quantity'] + delta;
+        if (newQuantity > 0) {
+          _cartItems[existingIndex]['quantity'] = newQuantity;
+        } else {
+          // Remove item if quantity becomes 0
+          _cartItems.removeAt(existingIndex);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${product['name']} dihapus dari keranjang'),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 1),
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+          );
+        }
+      }
+    });
+  }
 
   // Produk Ikan Segar
   final List<Map<String, dynamic>> _freshFishProducts = [
@@ -121,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'badge': 'Siap Masak',
       'badgeColor': Color(0xFF2563EB),
       'badgeBg': Color(0xFFDBEAFE),
+      'shopeeUrl': 'https://shopee.co.id/search?keyword=nugget+ikan',
     },
     {
       'type': 'processed',
@@ -131,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'badge': 'Praktis',
       'badgeColor': Color(0xFFEA580C),
       'badgeBg': Color(0xFFFFEDD5),
+      'shopeeUrl': 'https://shopee.co.id/search?keyword=bakso+ikan',
     },
     {
       'type': 'processed',
@@ -141,6 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'badge': 'Best Seller',
       'badgeColor': Color(0xFF0077B6),
       'badgeBg': Color(0xFFFFFFFF),
+      'shopeeUrl': 'https://shopee.co.id/search?keyword=sosis+ikan',
     },
     {
       'type': 'processed',
@@ -152,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'badgeColor': Color(0xFFEA580C),
       'badgeBg': Color(0xFFFFEDD5),
       'discount': '-10%',
+      'shopeeUrl': 'https://shopee.co.id/search?keyword=otak+otak+ikan',
     },
   ];
 
@@ -164,72 +273,85 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header Section
-            _buildHeader(),
+      body: Stack(
+        children: [
+          // Main content
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // Header Section
+                _buildHeader(),
 
-            // Products Section
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Section Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Products Section
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Panen Hari Ini',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E293B),
-                        ),
+                      // Section Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Panen Hari Ini',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                          const Text(
+                            'Update: 08:00 WIB',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ],
                       ),
-                      const Text(
-                        'Update: 08:00 WIB',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF94A3B8),
+                      const SizedBox(height: 16),
+
+                      // Conditional: Large cards for Ikan Segar, Grid for Produk Olahan
+                      if (_selectedTab == 0)
+                        // Ikan Segar - Large Product Cards
+                        ..._activeProducts.map((product) => Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: _buildLargeProductCard(product),
+                            ))
+                      else
+                        // Produk Olahan - 2 Column Grid
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 6,
+                            mainAxisSpacing: 15,
+                            childAspectRatio: 0.52, // Reduced to give more height and fix overflow
+                          ),
+                          itemCount: _processedGridProducts.length,
+                          itemBuilder: (context, index) {
+                            return _buildGridProductCard(_processedGridProducts[index]);
+                          },
                         ),
-                      ),
+
+                      const SizedBox(height: 100),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Conditional: Large cards for Ikan Segar, Grid for Produk Olahan
-                  if (_selectedTab == 0)
-                    // Ikan Segar - Large Product Cards
-                    ..._activeProducts.map((product) => Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: _buildLargeProductCard(product),
-                        ))
-                  else
-                    // Produk Olahan - 2 Column Grid
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 6,
-                        mainAxisSpacing: 15,
-                        childAspectRatio: 0.52, // Reduced to give more height and fix overflow
-                      ),
-                      itemCount: _processedGridProducts.length,
-                      itemBuilder: (context, index) {
-                        return _buildGridProductCard(_processedGridProducts[index]);
-                      },
-                    ),
-
-                  const SizedBox(height: 100),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Floating cart button (bottom right)
+          if (_cartItemCount > 0)
+            Positioned(
+              right: 24,
+              bottom: 24,
+              child: _buildFloatingCartButton(),
+            ),
+        ],
       ),
     );
   }
@@ -631,27 +753,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product['name'],
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product['name'],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            product['description'],
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF64748B),
+                            Text(
+                              product['description'],
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF64748B),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
@@ -684,53 +813,148 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Add to Cart Button
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Add to cart logic
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${product['name']} ditambahkan ke keranjang'),
-                          behavior: SnackBarBehavior.floating,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: product['buttonColor'],
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFBFDBFE).withOpacity(0.5),
-                            blurRadius: 15,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.shopping_cart_outlined,
+                  // Add to Cart Button or Quantity Controls
+                  _getItemQuantityInCart(product['name']) > 0
+                      ? Container(
+                          height: 44,
+                          decoration: BoxDecoration(
                             color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            product['buttonText'],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFF0077B6),
+                              width: 2,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                          child: Row(
+                            children: [
+                              // Minus button
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => _updateCartQuantity(product, -1),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(14),
+                                    bottomLeft: Radius.circular(14),
+                                  ),
+                                  child: const Icon(
+                                    Icons.remove,
+                                    color: Color(0xFF0077B6),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              // Quantity display
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0077B6),
+                                  border: Border(
+                                    left: BorderSide(
+                                      color: const Color(0xFF0077B6),
+                                      width: 1,
+                                    ),
+                                    right: BorderSide(
+                                      color: const Color(0xFF0077B6),
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${_getItemQuantityInCart(product['name'])} kg',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Plus button
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () => _updateCartQuantity(product, 1),
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(14),
+                                    bottomRight: Radius.circular(14),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add,
+                                    color: Color(0xFF0077B6),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () async {
+                            // Check if this is a pre-order product
+                            if (product['buttonText'] == 'Booking Sekarang') {
+                              // Navigate to booking screen
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BookingScreen(product: product),
+                                ),
+                              );
+                              
+                              // Add booking item to cart if returned
+                              if (result != null && result is Map<String, dynamic>) {
+                                setState(() {
+                                  final existingIndex = _cartItems.indexWhere(
+                                    (item) => item['name'] == result['name'] && item['type'] == 'booking',
+                                  );
+                                  
+                                  if (existingIndex >= 0) {
+                                    // Update quantity if already exists
+                                    _cartItems[existingIndex]['quantity'] += result['quantity'];
+                                  } else {
+                                    // Add new item
+                                    _cartItems.add(result);
+                                  }
+                                });
+                              }
+                            } else {
+                              // Add to cart
+                              _addToCart(product);
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: product['buttonColor'],
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFBFDBFE).withOpacity(0.5),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_cart_outlined,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  product['buttonText'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
@@ -741,16 +965,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildGridProductCard(Map<String, dynamic> product) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(product: product),
-          ),
-        );
-      },
-      child: Container(
+    return Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -920,15 +1135,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
+                      // Cart button for Shopee
                       Container(
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF40916C),
+                          color: const Color(0xFFFF6B00),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF40916C).withOpacity(0.3),
+                              color: const Color(0xFFFF6B00).withOpacity(0.3),
                               blurRadius: 15,
                               offset: const Offset(0, 10),
                             ),
@@ -938,27 +1154,79 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              // TODO: Add to cart logic
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${product['name']} ditambahkan ke keranjang'),
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
-                            },
+                            onTap: () => _launchShopeeUrl(product['shopeeUrl'] ?? 'https://shopee.co.id'),
                             child: const Icon(
-                              Icons.add,
+                              Icons.shopping_cart_outlined,
                               color: Colors.white,
-                              size: 18,
+                              size: 16,
                             ),
-                          ),
-                        ),
-                      ),
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+    );
+  }
+
+  Widget _buildFloatingCartButton() {
+    return GestureDetector(
+      onTap: _openCart,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F83BD), Color(0xFF054F7A)],
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0F83BD).withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Center(
+              child: Icon(
+                Icons.shopping_cart,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            Positioned(
+              right: -2,
+              top: -2,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 20,
+                  minHeight: 20,
+                ),
+                child: Text(
+                  '$_cartItemCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
