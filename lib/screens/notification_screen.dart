@@ -146,65 +146,27 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC).withOpacity(0.8),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Notifikasi',
-                style: TextStyle(
-                  color: Color(0xFF0F172A),
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  height: 1.33,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                'Update Aktivitas Segar',
-                style: TextStyle(
-                  color: Color(0xFF64748B),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  height: 1.33,
-                ),
-              ),
-            ],
+      child: Center(
+        child: const Text(
+          'Notifikasi',
+          style: TextStyle(
+            color: Color(0xFF0F172A),
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            height: 1.33,
           ),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(9999),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.tune,
-              color: Color(0xFF0975AE),
-              size: 16,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildTabFilter() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(

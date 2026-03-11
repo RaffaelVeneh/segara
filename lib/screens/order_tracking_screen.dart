@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'order_detail_screen.dart';
+import 'main_screen.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
   final String orderId;
@@ -108,7 +109,16 @@ class OrderTrackingScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  // Navigate to main screen and clear all previous routes
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainScreen(role: 'buyer'),
+                    ),
+                    (route) => false,
+                  );
+                },
                 borderRadius: BorderRadius.circular(9999),
                 child: Padding(
                   padding: const EdgeInsets.all(8),
@@ -563,7 +573,14 @@ class OrderTrackingScreen extends StatelessWidget {
               width: 56,
               height: 265,
               decoration: BoxDecoration(
-                color: const Color(0xC00EA5E9),
+                gradient: const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xC00EA5E9),
+                    Color(0x400EA5E9),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(9999),
               ),
             ),

@@ -660,8 +660,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => PaymentConfirmationScreen(
@@ -670,6 +670,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                       ),
                     );
+                    if (result == 'checkout_complete' && mounted) {
+                      Navigator.pop(context, 'checkout_complete');
+                    }
                   },
                   borderRadius: BorderRadius.circular(16),
                   child: Padding(

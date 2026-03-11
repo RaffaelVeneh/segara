@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'checkout_screen.dart';
+import 'my_orders_screen.dart';
 
 class CartScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cartItems;
-
-  const CartScreen({
-    super.key,
-    required this.cartItems,
-  });
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -20,8 +16,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    _items = List.from(widget.cartItems);
-    // Initialize all items as selected
+    _items = CartStorage.getAllItems();
     _selectedItems = List.filled(_items.length, true);
   }
 
@@ -85,10 +80,11 @@ class _CartScreenState extends State<CartScreen> {
       if (newQuantity > 0) {
         _items[index]['quantity'] = newQuantity;
       } else {
-        // Remove item if quantity becomes 0
         _items.removeAt(index);
         _selectedItems.removeAt(index);
       }
+      // Sync back to CartStorage
+      CartStorage.updateItems(_items);
     });
   }
 
@@ -243,7 +239,10 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 // Back button
                 InkWell(
-                  onTap: () => Navigator.pop(context, _items),
+                  onTap: () {
+                    CartStorage.updateItems(_items);
+                    Navigator.pop(context);
+                  },
                   borderRadius: BorderRadius.circular(9999),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
@@ -872,16 +871,25 @@ class _CartScreenState extends State<CartScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: _selectedCount > 0 ? () {
-                    Navigator.push(
+                  onTap: _selectedCount > 0 ? () async {
+                    final selectedItems = _selectedCartItems;
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => CheckoutScreen(
-                          cartItems: _selectedCartItems,
+                          cartItems: selectedItems,
                           totalPrice: _totalPrice,
                         ),
                       ),
                     );
+                    // If checkout completed, remove checked-out items from cart
+                    if (result == 'checkout_complete') {
+                      CartStorage.removeCheckedOutItems(selectedItems);
+                      setState(() {
+                        _items = CartStorage.getAllItems();
+                        _selectedItems = List.filled(_items.length, true);
+                      });
+                    }
                   } : null,
                   borderRadius: BorderRadius.circular(16),
                   child: Row(

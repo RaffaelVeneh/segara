@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
 import 'booking_screen.dart';
+import 'my_orders_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String role;
@@ -18,32 +19,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedTab = 0; // 0 = Ikan Segar, 1 = Produk Olahan
-  final List<Map<String, dynamic>> _cartItems = [];
 
-  int get _cartItemCount {
-    return _cartItems.fold(0, (sum, item) => sum + (item['quantity'] as int));
-  }
+  int get _cartItemCount => CartStorage.getItemCount();
 
   void _addToCart(Map<String, dynamic> product) {
     setState(() {
-      // Check if product already exists in cart
-      final existingIndex = _cartItems.indexWhere(
-        (item) => item['name'] == product['name'],
-      );
-
-      if (existingIndex >= 0) {
-        // Increment quantity if already in cart
-        _cartItems[existingIndex]['quantity'] += 1;
-      } else {
-        // Add new item to cart
-        _cartItems.add({
-          'name': product['name'],
-          'price': product['price'],
-          'image': product['image'],
-          'variant': product['description'],
-          'quantity': 1,
-        });
-      }
+      CartStorage.addItem({
+        'name': product['name'],
+        'price': product['price'],
+        'image': product['image'],
+        'variant': product['description'],
+        'quantity': 1,
+      });
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -57,20 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openCart() async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CartScreen(cartItems: _cartItems),
+        builder: (context) => const CartScreen(),
       ),
     );
-
-    // Update cart items if modified in cart screen
-    if (result != null && result is List<Map<String, dynamic>>) {
-      setState(() {
-        _cartItems.clear();
-        _cartItems.addAll(result);
-      });
-    }
+    // Refresh UI after returning from cart
+    setState(() {});
   }
 
   Future<void> _launchShopeeUrl(String url) async {
@@ -88,26 +69,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   int _getItemQuantityInCart(String productName) {
-    final item = _cartItems.firstWhere(
-      (item) => item['name'] == productName,
-      orElse: () => <String, dynamic>{},
-    );
-    return item['quantity'] ?? 0;
+    return CartStorage.getItemQuantity(productName);
   }
 
   void _updateCartQuantity(Map<String, dynamic> product, int delta) {
     setState(() {
-      final existingIndex = _cartItems.indexWhere(
+      final items = CartStorage.getAllItems();
+      final existingIndex = items.indexWhere(
         (item) => item['name'] == product['name'],
       );
 
       if (existingIndex >= 0) {
-        final newQuantity = _cartItems[existingIndex]['quantity'] + delta;
+        final newQuantity = (items[existingIndex]['quantity'] as int) + delta;
         if (newQuantity > 0) {
-          _cartItems[existingIndex]['quantity'] = newQuantity;
+          CartStorage.updateItems(items..[existingIndex]['quantity'] = newQuantity);
         } else {
-          // Remove item if quantity becomes 0
-          _cartItems.removeAt(existingIndex);
+          CartStorage.removeItem(existingIndex);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${product['name']} dihapus dari keranjang'),
@@ -423,6 +400,72 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Row(
                     children: [
+                      // Orders Icon
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MyOrdersScreen(),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(9999),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFF1F5F9)),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x0D000000),
+                                blurRadius: 2,
+                                offset: Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Stack(
+                            children: [
+                              const Center(
+                                child: Icon(
+                                  Icons.receipt_long_outlined,
+                                  size: 20,
+                                  color: Color(0xFF475569),
+                                ),
+                              ),
+                              if (OrdersStorage.getOrderCount() > 0)
+                                Positioned(
+                                  right: 6,
+                                  top: 6,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0284C7),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 1.5),
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                      minHeight: 16,
+                                    ),
+                                    child: Text(
+                                      '${OrdersStorage.getOrderCount()}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       // Notification Icon
                       Container(
                         width: 40,
@@ -902,17 +945,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               // Add booking item to cart if returned
                               if (result != null && result is Map<String, dynamic>) {
                                 setState(() {
-                                  final existingIndex = _cartItems.indexWhere(
-                                    (item) => item['name'] == result['name'] && item['type'] == 'booking',
-                                  );
-                                  
-                                  if (existingIndex >= 0) {
-                                    // Update quantity if already exists
-                                    _cartItems[existingIndex]['quantity'] += result['quantity'];
-                                  } else {
-                                    // Add new item
-                                    _cartItems.add(result);
-                                  }
+                                  CartStorage.addItemWithQuantity(result, result['quantity'] as int? ?? 1);
                                 });
                               }
                             } else {

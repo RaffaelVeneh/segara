@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:math';
 import 'order_tracking_screen.dart';
+import 'my_orders_screen.dart';
 
 class PaymentConfirmationScreen extends StatefulWidget {
   final int totalAmount;
@@ -869,6 +870,20 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
+                    // Save order to storage
+                    OrdersStorage.addOrder({
+                      'orderId': _orderId,
+                      'items': List<Map<String, dynamic>>.from(
+                        widget.cartItems.map((item) => Map<String, dynamic>.from(item)),
+                      ),
+                      'totalPrice': _finalTotalAmount,
+                      'status': 'Sedang Diproses',
+                      'createdAt': DateTime.now(),
+                    });
+                    
+                    // Remove checked-out items from cart
+                    CartStorage.removeCheckedOutItems(widget.cartItems);
+                    
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -878,6 +893,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                         ),
                       ),
                     );
+                    // Signal checkout complete back through the navigation stack
                   },
                   borderRadius: BorderRadius.circular(20),
                   child: Row(

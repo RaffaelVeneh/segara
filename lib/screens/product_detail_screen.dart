@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'checkout_screen.dart';
+import 'cart_screen.dart';
+import 'my_orders_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -12,12 +15,13 @@ class ProductDetailScreen extends StatefulWidget {
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTickerProviderStateMixin {
   double _quantity = 1.0;
   late TextEditingController _quantityController;
   late FocusNode _quantityFocusNode;
   late ScrollController _scrollController;
   final GlobalKey _quantityKey = GlobalKey();
+  late AnimationController _cartIconController; // animation for add-to-cart icon
 
   bool get _isFreshFish {
     final type = widget.product['type'];
@@ -31,11 +35,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return min;
   }
   
-  double get _stepQuantity {
-    final step = _isFreshFish ? 1.0 : 0.1;
-    print('Step quantity: $step (Fresh: $_isFreshFish)');
-    return step;
-  }
+  // step calculation unused, quantity increments now handled inline
+  // double get _stepQuantity {
+  //   final step = _isFreshFish ? 1.0 : 0.1;
+  //   print('Step quantity: $step (Fresh: $_isFreshFish)');
+  //   return step;
+  // }
 
   @override
   void initState() {
@@ -46,6 +51,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
     _quantityFocusNode = FocusNode();
     _scrollController = ScrollController();
+    _cartIconController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200), lowerBound: 0.8, upperBound: 1.2);
     
     // Add listener to scroll when keyboard appears
     _quantityFocusNode.addListener(() {
@@ -69,6 +75,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     _quantityController.dispose();
     _quantityFocusNode.dispose();
     _scrollController.dispose();
+    _cartIconController.dispose();
     super.dispose();
   }
 
@@ -415,75 +422,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ),
               ),
 
-              // Share & Cart
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xB3FFFFFF),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0x80FFFFFF),
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x0D000000),
-                          blurRadius: 2,
-                          offset: Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.share_outlined,
-                      color: Color(0xFF334155),
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Stack(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xB3FFFFFF),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0x80FFFFFF),
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0D000000),
-                              blurRadius: 2,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.shopping_cart_outlined,
-                          color: Color(0xFF334155),
-                          size: 20,
-                        ),
-                      ),
-                      Positioned(
-                        right: 9,
-                        top: 9,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF40916C),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  // (removed share and cart icons - they are redundant)
+              const SizedBox(),
             ],
           ),
         ),
@@ -1023,25 +963,96 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: Row(
             children: [
               // Favorite Button
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0D000000),
-                      blurRadius: 2,
-                      offset: Offset(0, 1),
+              GestureDetector(
+                onTap: () {
+                  final existingQty = CartStorage.getItemQuantity(widget.product['name']);
+                  if (existingQty > 0) {
+                    // already in cart, go to cart screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CartScreen(),
+                      ),
+                    );
+                    return;
+                  }
+                  // Otherwise add new item
+                  final int qtyInt = _quantity.toInt() == _quantity ? _quantity.toInt() : 0;
+                  final double qtyDouble = _quantity.toInt() == _quantity ? _quantity.toDouble() : _quantity;
+                  final dynamic finalQty = qtyInt > 0 ? qtyInt : qtyDouble;
+                  final item = <String, dynamic>{
+                    'name': widget.product['name'],
+                    'price': widget.product['price'],
+                    'image': widget.product['image'],
+                    'variant': widget.product['description'],
+                    'quantity': finalQty,
+                    'type': widget.product['type'],
+                  };
+                  CartStorage.addItemWithQuantity(item, (finalQty is int ? finalQty : (finalQty as double).toInt()));
+                  _cartIconController.forward().then((_) => _cartIconController.reverse());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Ditambahkan ke keranjang'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  setState(() {}); // refresh badge
+                },
+
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x0D000000),
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: ScaleTransition(
+                        scale: _cartIconController,
+                        child: const Icon(
+                          Icons.shopping_cart,
+                          color: Color(0xFF475569),
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                    // badge with quantity for this product
+                    Positioned(
+                      right: -4,
+                      top: -4,
+                      child: Builder(builder: (ctx) {
+                        final qty = CartStorage.getItemQuantity(widget.product['name']);
+                        if (qty <= 0) return const SizedBox.shrink();
+                        return Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                          child: Text(
+                            '$qty',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      }),
                     ),
                   ],
-                ),
-                child: const Icon(
-                  Icons.favorite_border,
-                  color: Color(0xFF475569),
-                  size: 24,
                 ),
               ),
               const SizedBox(width: 16),
@@ -1070,12 +1081,31 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(24),
                       onTap: () {
-                        // TODO: Implement order logic
-                        final displayQty = _quantity.toInt() == _quantity ? '${_quantity.toInt()}' : _quantity.toStringAsFixed(1);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Memesan $displayQty kg ${widget.product['name']}'),
-                            behavior: SnackBarBehavior.floating,
+                                // same logic repurposed
+                        final int qtyInt = _quantity.toInt() == _quantity ? _quantity.toInt() : 0;
+                        final double qtyDouble = _quantity.toInt() == _quantity ? _quantity.toDouble() : _quantity;
+                        final dynamic finalQty = qtyInt > 0 ? qtyInt : qtyDouble;
+                        final item = <String, dynamic>{
+                          'name': widget.product['name'],
+                          'price': widget.product['price'],
+                          'image': widget.product['image'],
+                          'variant': widget.product['description'],
+                          'quantity': finalQty,
+                          'type': widget.product['type'],
+                        };
+                        // add to global cart and animate icon
+                        CartStorage.addItemWithQuantity(item, (finalQty is int ? finalQty : (finalQty as double).toInt()));
+                        _cartIconController.forward().then((_) => _cartIconController.reverse());
+                        // navigate to checkout with just this item
+                        final totalPrice = (widget.product['price'] as num).toInt() *
+                            (finalQty is int ? finalQty : (finalQty as double).toInt());
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CheckoutScreen(
+                              cartItems: [item],
+                              totalPrice: totalPrice,
+                            ),
                           ),
                         );
                       },
