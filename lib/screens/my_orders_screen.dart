@@ -83,6 +83,17 @@ class CartStorage {
     );
     return (item['quantity'] as int?) ?? 0;
   }
+
+  static void setItemQuantity(String productName, int quantity) {
+    final idx = _items.indexWhere((item) => item['name'] == productName);
+    if (idx >= 0) {
+      if (quantity <= 0) {
+        _items.removeAt(idx);
+      } else {
+        _items[idx]['quantity'] = quantity;
+      }
+    }
+  }
 }
 
 // Static storage for orders
@@ -159,17 +170,17 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Orders list
           Expanded(
             child: orders.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                    itemCount: orders.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _buildOrderCard(orders[orders.length - 1 - index]),
-                      );
-                    },
-                  ),
+            ? _buildEmptyState()
+            : ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                itemCount: orders.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _buildOrderCard(orders[orders.length - 1 - index]),
+                  );
+                },
+              ),
           ),
         ],
       ),

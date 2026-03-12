@@ -17,10 +17,24 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     _items = CartStorage.getAllItems();
-    _selectedItems = List.filled(_items.length, true);
+    // Normalize all quantities to int
+    for (var item in _items) {
+      item['quantity'] = (item['quantity'] as num).toInt();
+    }
+    _selectedItems = List.generate(_items.length, (_) => true, growable: true);
   }
 
-  bool get _allSelected => _selectedItems.every((selected) => selected);
+  /// Ensure _selectedItems always matches _items length
+  void _syncSelection() {
+    if (_selectedItems.length != _items.length) {
+      _selectedItems = List.generate(_items.length, (_) => true, growable: true);
+    }
+  }
+
+  bool get _allSelected {
+    if (_selectedItems.isEmpty) return false;
+    return _selectedItems.every((selected) => selected);
+  }
   
   int get _selectedCount {
     return _selectedItems.where((selected) => selected).length;
@@ -29,37 +43,41 @@ class _CartScreenState extends State<CartScreen> {
   void _toggleSelectAll() {
     setState(() {
       final newValue = !_allSelected;
-      _selectedItems = List.filled(_items.length, newValue);
+      _selectedItems = List.generate(_items.length, (_) => newValue, growable: true);
     });
   }
 
   void _toggleItemSelection(int index) {
+    if (index < 0 || index >= _selectedItems.length) return;
     setState(() {
       _selectedItems[index] = !_selectedItems[index];
     });
   }
 
   int get _totalItems {
+    _syncSelection();
     int total = 0;
     for (int i = 0; i < _items.length; i++) {
       if (_selectedItems[i]) {
-        total += _items[i]['quantity'] as int;
+        total += (_items[i]['quantity'] as num).toInt();
       }
     }
     return total;
   }
 
   int get _totalPrice {
+    _syncSelection();
     int total = 0;
     for (int i = 0; i < _items.length; i++) {
       if (_selectedItems[i]) {
-        total += (_items[i]['price'] as int) * (_items[i]['quantity'] as int);
+        total += (_items[i]['price'] as num).toInt() * (_items[i]['quantity'] as num).toInt();
       }
     }
     return total;
   }
 
   List<Map<String, dynamic>> get _selectedCartItems {
+    _syncSelection();
     List<Map<String, dynamic>> selected = [];
     for (int i = 0; i < _items.length; i++) {
       if (_selectedItems[i]) {
@@ -71,19 +89,23 @@ class _CartScreenState extends State<CartScreen> {
 
   double get _totalWeight {
     // Assuming 1kg per item for simplicity
-    return _totalItems * 0.5; // 0.5kg per item
+    return _totalItems * 1; // 1kg per item
   }
 
   void _updateQuantity(int index, int delta) {
+    if (index < 0 || index >= _items.length) return;
     setState(() {
-      final newQuantity = _items[index]['quantity'] + delta;
+      final currentQty = (_items[index]['quantity'] as num).toInt();
+      final newQuantity = currentQty + delta;
       if (newQuantity > 0) {
         _items[index]['quantity'] = newQuantity;
       } else {
         _items.removeAt(index);
-        _selectedItems.removeAt(index);
+        if (index < _selectedItems.length) {
+          _selectedItems.removeAt(index);
+        }
       }
-      // Sync back to CartStorage
+      _syncSelection();
       CartStorage.updateItems(_items);
     });
   }
@@ -110,93 +132,93 @@ class _CartScreenState extends State<CartScreen> {
               // Cart items
               Expanded(
                 child: _items.isEmpty
-                    ? _buildEmptyCart()
-                    : SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 224),
-                        child: Column(
-                          children: [
-                            // Select All checkbox
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: const Color(0xFFF1F5F9),
+                ? _buildEmptyCart()
+                : SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 224),
+                  child: Column(
+                    children: [
+                      // Select All checkbox
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFFF1F5F9),
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _toggleSelectAll,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: _allSelected
+                                      ? const Color(0xFF0F83BD)
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: _allSelected
+                                        ? const Color(0xFF0F83BD)
+                                        : const Color(0xFFCBD5E1),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: _allSelected
+                                    ? const Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: Colors.white,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                _allSelected ? 'Batalkan Pilih Semua' : 'Pilih Semua',
+                                style: const TextStyle(
+                                  color: Color(0xFF1E293B),
+                                  fontSize: 14,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              child: InkWell(
-                                onTap: _toggleSelectAll,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 24,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        color: _allSelected
-                                            ? const Color(0xFF0F83BD)
-                                            : Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: _allSelected
-                                              ? const Color(0xFF0F83BD)
-                                              : const Color(0xFFCBD5E1),
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: _allSelected
-                                          ? const Icon(
-                                              Icons.check,
-                                              size: 16,
-                                              color: Colors.white,
-                                            )
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      _allSelected ? 'Batalkan Pilih Semua' : 'Pilih Semua',
-                                      style: const TextStyle(
-                                        color: Color(0xFF1E293B),
-                                        fontSize: 14,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    Text(
-                                      '$_selectedCount/${_items.length} dipilih',
-                                      style: const TextStyle(
-                                        color: Color(0xFF64748B),
-                                        fontSize: 12,
-                                        fontFamily: 'Montserrat',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                              const Spacer(),
+                              Text(
+                                '$_selectedCount/${_items.length} dipilih',
+                                style: const TextStyle(
+                                  color: Color(0xFF64748B),
+                                  fontSize: 12,
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Shipping info
-                            _buildShippingInfo(),
-                            const SizedBox(height: 24),
-
-                            // Cart items
-                            ..._items.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final item = entry.value;
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 24),
-                                child: _buildCartItem(item, index),
-                              );
-                            }),
-
-                            // Total weight info
-                            _buildWeightInfo(),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 16),
+                      
+                      // Shipping info
+                      _buildShippingInfo(),
+                      const SizedBox(height: 24),
+
+                      // Cart items
+                      ..._items.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: _buildCartItem(item, index),
+                        );
+                      }),
+
+                      // Total weight info
+                      _buildWeightInfo(),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -422,20 +444,21 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(Map<String, dynamic> item, int index) {
+    final isSelected = index < _selectedItems.length ? _selectedItems[index] : false;
     return Container(
       height: 147,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _selectedItems[index] 
+          color: isSelected 
               ? const Color(0xFF0F83BD)
               : const Color(0x80F1F5F9),
-          width: _selectedItems[index] ? 1.5 : 1,
+          width: isSelected ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: _selectedItems[index]
+            color: isSelected
                 ? const Color(0xFF0F83BD).withOpacity(0.15)
                 : const Color(0x0D000000),
             blurRadius: 40,
@@ -456,18 +479,18 @@ class _CartScreenState extends State<CartScreen> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: _selectedItems[index]
+                  color: isSelected
                       ? const Color(0xFF0F83BD)
                       : Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: _selectedItems[index]
+                    color: isSelected
                         ? const Color(0xFF0F83BD)
                         : const Color(0xFFCBD5E1),
                     width: 2,
                   ),
                 ),
-                child: _selectedItems[index]
+                child: isSelected
                     ? const Icon(
                         Icons.check,
                         size: 16,
@@ -887,7 +910,7 @@ class _CartScreenState extends State<CartScreen> {
                       CartStorage.removeCheckedOutItems(selectedItems);
                       setState(() {
                         _items = CartStorage.getAllItems();
-                        _selectedItems = List.filled(_items.length, true);
+                        _selectedItems = List.generate(_items.length, (_) => true, growable: true);
                       });
                     }
                   } : null,

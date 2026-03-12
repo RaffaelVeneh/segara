@@ -45,7 +45,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
   @override
   void initState() {
     super.initState();
-    _quantity = _minQuantity;
+    // Load quantity from cart if product already exists
+    final cartQty = CartStorage.getItemQuantity(widget.product['name']);
+    _quantity = cartQty > 0 ? cartQty.toDouble() : _minQuantity;
     _quantityController = TextEditingController(
       text: _quantity.toInt() == _quantity ? '${_quantity.toInt()}' : _quantity.toStringAsFixed(1),
     );
@@ -83,6 +85,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     setState(() {
       _quantity = newQuantity;
       _quantityController.text = _quantity.toInt() == _quantity ? '${_quantity.toInt()}' : _quantity.toStringAsFixed(1);
+      // Sync to cart if product already exists in cart
+      final existingQty = CartStorage.getItemQuantity(widget.product['name']);
+      if (existingQty > 0) {
+        CartStorage.setItemQuantity(widget.product['name'], _quantity.toInt());
+      }
     });
   }
 
