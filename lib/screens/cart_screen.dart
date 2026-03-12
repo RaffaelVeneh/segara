@@ -446,7 +446,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildCartItem(Map<String, dynamic> item, int index) {
     final isSelected = index < _selectedItems.length ? _selectedItems[index] : false;
     return Container(
-      height: 147,
+      height: 170,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -561,148 +561,185 @@ class _CartScreenState extends State<CartScreen> {
             left: 181,
             top: 17,
             right: 16,
-            child: SizedBox(
-              height: 113,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Name and variant
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['name'] ?? 'Produk',
-                        style: const TextStyle(
-                          color: Color(0xFF1E293B),
-                          fontSize: 16,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+            bottom: 14,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Name and variant
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'] ?? 'Produk',
+                      style: const TextStyle(
+                        color: Color(0xFF1E293B),
+                        fontSize: 16,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w700,
+                        height: 1.25,
                       ),
-                      const SizedBox(height: 5.5),
-                      Row(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 5.5),
+                    Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: const Color(0x990F83BD),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            item['variant'] ?? 'Utuh (Bersih)',
+                            style: const TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              height: 1.33,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // Price
+                Text(
+                  'Rp ${_formatPrice(item['price'])}',
+                  style: const TextStyle(
+                    color: Color(0xFF0F83BD),
+                    fontSize: 17,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w700,
+                    height: 1.3,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                // Quantity controls
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: const Color(0x990F83BD),
-                              shape: BoxShape.circle,
+                          // Minus button
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _updateQuantity(index, -1),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.remove_rounded,
+                                  size: 16,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              item['variant'] ?? 'Utuh (Bersih)',
-                              style: const TextStyle(
-                                color: Color(0xFF64748B),
-                                fontSize: 12,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w400,
-                                height: 1.33,
+
+                          // Quantity + unit
+                          Container(
+                            constraints: const BoxConstraints(minWidth: 48),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            alignment: Alignment.center,
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '${item['quantity']}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF1E293B),
+                                      fontSize: 15,
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const TextSpan(
+                                    text: ' kg',
+                                    style: TextStyle(
+                                      color: Color(0xFF94A3B8),
+                                      fontSize: 11,
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+
+                          // Plus button
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => _updateQuantity(index, 1),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF0F83BD), Color(0xFF054F7A)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF0F83BD).withOpacity(0.3),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.add_rounded,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-
-                  // Price and quantity controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Price
-                      Flexible(
-                        child: Text(
-                          'Rp\n${_formatPrice(item['price'])}',
-                          style: const TextStyle(
-                            color: Color(0xFF0F83BD),
-                            fontSize: 17,
-                            fontFamily: 'Montserrat',
-                            fontWeight: FontWeight.w700,
-                            height: 1.5,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Quantity controls
-                      Container(
-                        height: 36,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(9999),
-                          border: Border.all(
-                            color: const Color(0xFFF1F5F9),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Minus button
-                            InkWell(
-                              onTap: () => _updateQuantity(index, -1),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                width: 32,
-                                height: 28,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.remove,
-                                  size: 14,
-                                  color: Color(0xFF94A3B8),
-                                ),
-                              ),
-                            ),
-
-                            // Quantity
-                            SizedBox(
-                              width: 24,
-                              child: Text(
-                                '${item['quantity']}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Color(0xFF334155),
-                                  fontSize: 14,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.43,
-                                ),
-                              ),
-                            ),
-
-                            // Plus button
-                            InkWell(
-                              onTap: () => _updateQuantity(index, 1),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                width: 32,
-                                height: 28,
-                                alignment: Alignment.center,
-                                child: const Icon(
-                                  Icons.add,
-                                  size: 14,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

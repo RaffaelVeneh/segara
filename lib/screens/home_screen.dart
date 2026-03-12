@@ -859,71 +859,101 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Add to Cart Button or Quantity Controls
                   _getItemQuantityInCart(product['name']) > 0
                       ? Container(
-                          height: 44,
+                          height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF0077B6),
-                              width: 2,
-                            ),
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             children: [
                               // Minus button
-                              Expanded(
+                              Material(
+                                color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () => _updateCartQuantity(product, -1),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(14),
-                                    bottomLeft: Radius.circular(14),
-                                  ),
-                                  child: const Icon(
-                                    Icons.remove,
-                                    color: Color(0xFF0077B6),
-                                    size: 20,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.remove_rounded,
+                                      size: 16,
+                                      color: Color(0xFF64748B),
+                                    ),
                                   ),
                                 ),
                               ),
                               // Quantity display
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0077B6),
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: const Color(0xFF0077B6),
-                                      width: 1,
-                                    ),
-                                    right: BorderSide(
-                                      color: const Color(0xFF0077B6),
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
+                              Expanded(
                                 child: Center(
-                                  child: Text(
-                                    '${_getItemQuantityInCart(product['name'])} kg',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: '${_getItemQuantityInCart(product['name'])}',
+                                          style: const TextStyle(
+                                            color: Color(0xFF1E293B),
+                                            fontSize: 15,
+                                            fontFamily: 'Montserrat',
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const TextSpan(
+                                          text: ' kg',
+                                          style: TextStyle(
+                                            color: Color(0xFF94A3B8),
+                                            fontSize: 11,
+                                            fontFamily: 'Inter',
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
                               // Plus button
-                              Expanded(
+                              Material(
+                                color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () => _updateCartQuantity(product, 1),
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(14),
-                                    bottomRight: Radius.circular(14),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Color(0xFF0077B6),
-                                    size: 20,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFF0F83BD), Color(0xFF054F7A)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFF0F83BD).withOpacity(0.3),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.add_rounded,
+                                      size: 16,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
