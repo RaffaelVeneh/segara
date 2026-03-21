@@ -1,41 +1,50 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import 'dart:math';
+import 'package:image_picker/image_picker.dart';
+
+import '../providers/app_providers.dart';
 import 'order_tracking_screen.dart';
 import 'my_orders_screen.dart';
 
-class PaymentConfirmationScreen extends StatefulWidget {
+class PaymentConfirmationScreen extends ConsumerStatefulWidget {
+  final String orderId;
+  final String orderNumber;
   final int totalAmount;
+  final DateTime expiredAt;
   final List<Map<String, dynamic>> cartItems;
 
   const PaymentConfirmationScreen({
     super.key,
+    required this.orderId,
+    required this.orderNumber,
     required this.totalAmount,
+    required this.expiredAt,
     required this.cartItems,
   });
 
   @override
-  State<PaymentConfirmationScreen> createState() => _PaymentConfirmationScreenState();
+  ConsumerState<PaymentConfirmationScreen> createState() =>
+      _PaymentConfirmationScreenState();
 }
 
-class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
+class _PaymentConfirmationScreenState
+    extends ConsumerState<PaymentConfirmationScreen> {
   bool _isOrderDetailsExpanded = false;
   Timer? _countdownTimer;
-  int _remainingSeconds = 7170; // 1:59:30
-  late int _randomLastThreeDigits;
-  late int _finalTotalAmount;
-  late String _orderId;
+  int _remainingSeconds = 0;
+  final ImagePicker _imagePicker = ImagePicker();
+  File? _paymentProofFile;
 
   @override
   void initState() {
     super.initState();
-    // Generate random 3 digits (100-999) for payment verification
-    _randomLastThreeDigits = Random().nextInt(900) + 100;
-    // Calculate final total: round down to nearest 1000 and add random 3 digits
-    _finalTotalAmount = (widget.totalAmount ~/ 1000) * 1000 + _randomLastThreeDigits;
-    // Generate random order ID
-    _orderId = '#SEG-${Random().nextInt(900000) + 100000}';
+    _remainingSeconds = widget.expiredAt.difference(DateTime.now()).inSeconds;
+    if (_remainingSeconds < 0) {
+      _remainingSeconds = 0;
+    }
     _startCountdown();
   }
 
@@ -58,11 +67,30 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _pickProofImage() async {
+    final XFile? pickedFile = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (pickedFile == null) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _paymentProofFile = File(pickedFile.path);
+    });
+  }
+
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   void _copyToClipboard(String text, String label) {
@@ -84,6 +112,8 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final flowState = ref.watch(orderFlowProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Stack(
@@ -122,7 +152,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       const SizedBox(height: 24),
 
                       // Payment proof upload
-                      _buildPaymentProofSection(),
+                      _buildPaymentProofSection(flowState),
                       const SizedBox(height: 16),
 
                       // Security text
@@ -139,7 +169,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: _buildBottomBar(),
+            child: _buildBottomBar(flowState),
           ),
         ],
       ),
@@ -147,43 +177,46 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: const Color(0xFF0077B8).withOpacity(0.05),
-            width: 25,
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(
+              color: const Color(0xFF0077B8).withValues(alpha: 0.05),
+              width: 25,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(9999),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: const Icon(
-                Icons.arrow_back,
-                size: 20,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(9999),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.arrow_back,
+                  size: 20,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+            ),
+            const Text(
+              'Instruksi Pembayaran',
+              style: TextStyle(
+                fontSize: 20,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w700,
                 color: Color(0xFF0F172A),
               ),
             ),
-          ),
-          const Text(
-            'Instruksi Pembayaran',
-            style: TextStyle(
-              fontSize: 20,
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF0F172A),
-            ),
-          ),
-          const SizedBox(width: 32),
-        ],
+            const SizedBox(width: 32),
+          ],
+        ),
       ),
     );
   }
@@ -194,9 +227,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF7ED),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFFFEDD5),
-        ),
+        border: Border.all(color: const Color(0xFFFFEDD5)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0D000000),
@@ -264,18 +295,17 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
   }
 
   Widget _buildTotalAmountCard() {
-    final priceString = _formatPrice(_finalTotalAmount);
-    final lastThreeDigits = priceString.substring(priceString.length - 3);
-    final beforeLastThree = priceString.substring(0, priceString.length - 3);
+    final priceString = _formatPrice(widget.totalAmount);
+    final splitIndex = priceString.length > 3 ? priceString.length - 3 : 0;
+    final beforeLastThree = priceString.substring(0, splitIndex);
+    final lastThreeDigits = priceString.substring(splitIndex);
 
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1A000000),
@@ -311,7 +341,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
               ),
               children: [
                 TextSpan(
-                  text: 'Rp $beforeLastThree',
+                  text: splitIndex == 0 ? 'Rp ' : 'Rp $beforeLastThree',
                   style: const TextStyle(color: Color(0xFF0F172A)),
                 ),
                 TextSpan(
@@ -327,9 +357,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFF1F5F9),
-              ),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
             ),
             child: RichText(
               textAlign: TextAlign.center,
@@ -365,9 +393,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1A000000),
@@ -399,13 +425,14 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE0F2F1),
                     borderRadius: BorderRadius.circular(9999),
-                    border: Border.all(
-                      color: const Color(0xFFCCFBF1),
-                    ),
+                    border: Border.all(color: const Color(0xFFCCFBF1)),
                   ),
                   child: Row(
                     children: const [
@@ -448,9 +475,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFF1F5F9),
-                        ),
+                        border: Border.all(color: const Color(0xFFF1F5F9)),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x0D000000),
@@ -527,25 +552,31 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFE2E8F0),
-                        ),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            '123-456-7890',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'Liberation Mono',
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF1E293B),
-                              letterSpacing: 0.45,
+                          const Expanded(
+                            child: Text(
+                              '123-456-7890',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontFamily: 'Liberation Mono',
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF1E293B),
+                                letterSpacing: 0.45,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           InkWell(
-                            onTap: () => _copyToClipboard('1234567890', 'Nomor rekening'),
+                            onTap: () => _copyToClipboard(
+                              '1234567890',
+                              'Nomor rekening',
+                            ),
                             borderRadius: BorderRadius.circular(9999),
                             child: Padding(
                               padding: const EdgeInsets.all(8),
@@ -602,9 +633,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0D000000),
@@ -666,7 +695,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
     );
   }
 
-  Widget _buildPaymentProofSection() {
+  Widget _buildPaymentProofSection(OrderFlowState flowState) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -685,63 +714,81 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: const Color(0xFFCBD5E1),
-              width: 2,
-            ),
+            border: Border.all(color: const Color(0xFFCBD5E1), width: 2),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                // TODO: Implement image picker
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Fitur upload akan segera hadir'),
-                    backgroundColor: Color(0xFF0077B8),
-                  ),
-                );
-              },
+              onTap: flowState.isUploadingProof ? null : _pickProofImage,
               borderRadius: BorderRadius.circular(20),
               child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: const Color(0x1A0077B8),
-                        shape: BoxShape.circle,
+                child: _paymentProofFile == null
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: const Color(0x1A0077B8),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.upload_outlined,
+                              size: 14,
+                              color: Color(0xFF0077B8),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Upload Foto Struk',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF334155),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Format: JPG, PNG (Max 5MB)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ],
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.file(_paymentProofFile!, fit: BoxFit.cover),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                color: Colors.black45,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                child: const Text(
+                                  'Tap untuk ganti gambar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.upload_outlined,
-                        size: 14,
-                        color: Color(0xFF0077B8),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Upload Foto Struk',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF334155),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Format: JPG, PNG (Max 5MB)',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -757,11 +804,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(
-              Icons.shield_outlined,
-              size: 12,
-              color: Color(0xFF64748B),
-            ),
+            Icon(Icons.shield_outlined, size: 12, color: Color(0xFF64748B)),
             SizedBox(width: 8),
             Text(
               'SECURE TRANSACTION BY SEGARA',
@@ -779,21 +822,18 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
     );
   }
 
-  Widget _buildBottomBar() {
-    final priceString = _formatPrice(_finalTotalAmount);
-    final lastThreeDigits = priceString.substring(priceString.length - 3);
-    final beforeLastThree = priceString.substring(0, priceString.length - 3);
+  Widget _buildBottomBar(OrderFlowState flowState) {
+    final priceString = _formatPrice(widget.totalAmount);
+    final splitIndex = priceString.length > 3 ? priceString.length - 3 : 0;
+    final lastThreeDigits = priceString.substring(splitIndex);
+    final beforeLastThree = priceString.substring(0, splitIndex);
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: const Border(
-          top: BorderSide(
-            color: Color(0xFFF1F5F9),
-          ),
-        ),
+        border: const Border(top: BorderSide(color: Color(0xFFF1F5F9))),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1A000000),
@@ -831,7 +871,7 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
                       ),
                       children: [
                         TextSpan(
-                          text: 'Rp $beforeLastThree',
+                          text: splitIndex == 0 ? 'Rp ' : 'Rp $beforeLastThree',
                           style: const TextStyle(color: Color(0xFF0F172A)),
                         ),
                         TextSpan(
@@ -869,51 +909,99 @@ class _PaymentConfirmationScreenState extends State<PaymentConfirmationScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () {
-                    // Save order to storage
-                    OrdersStorage.addOrder({
-                      'orderId': _orderId,
-                      'items': List<Map<String, dynamic>>.from(
-                        widget.cartItems.map((item) => Map<String, dynamic>.from(item)),
-                      ),
-                      'totalPrice': _finalTotalAmount,
-                      'status': 'Sedang Diproses',
-                      'createdAt': DateTime.now(),
-                    });
-                    
-                    // Remove checked-out items from cart
-                    CartStorage.removeCheckedOutItems(widget.cartItems);
-                    
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => OrderTrackingScreen(
-                          orderId: _orderId,
-                          orderItems: widget.cartItems,
-                        ),
-                      ),
-                    );
-                    // Signal checkout complete back through the navigation stack
-                  },
+                  onTap: flowState.isUploadingProof
+                      ? null
+                      : () async {
+                          if (_paymentProofFile == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Silakan pilih foto bukti transfer terlebih dahulu.',
+                                ),
+                                backgroundColor: Color(0xFFB91C1C),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final uploadResult = await ref
+                              .read(orderFlowProvider.notifier)
+                              .uploadProof(
+                                orderId: widget.orderId,
+                                imageFile: _paymentProofFile!,
+                              );
+
+                          if (!mounted) {
+                            return;
+                          }
+
+                          if (uploadResult == null) {
+                            final errorMessage =
+                                ref.read(orderFlowProvider).errorMessage ??
+                                'Gagal mengunggah bukti pembayaran.';
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(errorMessage),
+                                backgroundColor: const Color(0xFFB91C1C),
+                              ),
+                            );
+                            return;
+                          }
+
+                          OrdersStorage.addOrder({
+                            'orderId': widget.orderNumber,
+                            'items': List<Map<String, dynamic>>.from(
+                              widget.cartItems.map(
+                                (item) => Map<String, dynamic>.from(item),
+                              ),
+                            ),
+                            'totalPrice': widget.totalAmount,
+                            'status': 'Menunggu Verifikasi',
+                            'createdAt': DateTime.now(),
+                          });
+
+                          CartStorage.clear();
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderTrackingScreen(
+                                orderId: widget.orderId,
+                                orderItems: widget.cartItems,
+                              ),
+                            ),
+                          );
+                        },
                   borderRadius: BorderRadius.circular(20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
+                    children: [
                       Text(
-                        'Konfirmasi Pembayaran',
-                        style: TextStyle(
+                        flowState.isUploadingProof
+                            ? 'Mengunggah Bukti...'
+                            : 'Konfirmasi Pembayaran',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(width: 12),
-                      Icon(
-                        Icons.arrow_forward,
-                        size: 16,
-                        color: Colors.white,
-                      ),
+                      const SizedBox(width: 12),
+                      flowState.isUploadingProof
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.arrow_forward,
+                              size: 16,
+                              color: Colors.white,
+                            ),
                     ],
                   ),
                 ),

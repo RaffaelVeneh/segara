@@ -91,7 +91,7 @@ class _BookingScreenState extends State<BookingScreen> {
           radius: 1.4,
           colors: [
             const Color(0xFFD0EDFB),
-            const Color(0xFFD0EDFB).withOpacity(0),
+            const Color(0xFFD0EDFB).withValues(alpha: 0),
           ],
         ),
       ),
@@ -106,7 +106,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   radius: 0.7,
                   colors: [
                     const Color(0xFFE2F8EB),
-                    const Color(0xFFE2F8EB).withOpacity(0),
+                    const Color(0xFFE2F8EB).withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -122,10 +122,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
                   boxShadow: const [
                     BoxShadow(
@@ -166,10 +166,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
                   boxShadow: const [
                     BoxShadow(
@@ -292,7 +292,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         color: const Color(0xFF5DA465),
                         borderRadius: BorderRadius.circular(9999),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                         ),
                         boxShadow: const [
                           BoxShadow(
@@ -958,7 +958,7 @@ class _BookingScreenState extends State<BookingScreen> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(32),
           ),

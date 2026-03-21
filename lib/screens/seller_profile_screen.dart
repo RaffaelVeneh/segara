@@ -42,7 +42,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
@@ -60,12 +60,12 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -90,10 +90,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: const Icon(
                         Icons.verified,
@@ -121,7 +118,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                     Text(
                       'seller@ikanura.com',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                       ),
@@ -133,21 +130,17 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.store,
-                            color: Colors.white,
-                            size: 12,
-                          ),
+                          Icon(Icons.store, color: Colors.white, size: 12),
                           const SizedBox(width: 4),
                           Text(
                             'SELLER VERIFIED',
@@ -171,7 +164,14 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   size: 20,
                 ),
                 onPressed: () {
-                  // TODO: Edit profile
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Fitur Edit Profile akan segera hadir pada update berikutnya.',
+                      ),
+                      backgroundColor: Color(0xFF0077B6),
+                    ),
+                  );
                 },
               ),
             ],
@@ -235,7 +235,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -250,11 +250,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
               color: bgColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 12),
           Text(
@@ -422,12 +418,10 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -442,11 +436,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 color: iconBg,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 24,
-              ),
+              child: Icon(icon, color: iconColor, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -473,11 +463,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Color(0xFFCBD5E1),
-              size: 20,
-            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 20),
           ],
         ),
       ),
@@ -495,20 +481,17 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
             ),
             title: const Text(
               'Keluar dari Akun',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
-            content: const Text('Apakah Anda yakin ingin keluar dari akun seller?'),
+            content: const Text(
+              'Apakah Anda yakin ingin keluar dari akun seller?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Batal',
-                  style: TextStyle(
-                    color: Color(0xFF64748B),
-                  ),
+                  style: TextStyle(color: Color(0xFF64748B)),
                 ),
               ),
               ElevatedButton(
@@ -517,7 +500,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LoginScreen(role: 'seller'),
+                      builder: (context) => const LoginScreen(),
                     ),
                     (route) => false,
                   );
@@ -531,9 +514,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
                 ),
                 child: const Text(
                   'Keluar',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -546,17 +527,13 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
           color: const Color(0xFFFEF2F2),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFDC2626).withOpacity(0.2),
+            color: const Color(0xFFDC2626).withValues(alpha: 0.2),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(
-              Icons.logout,
-              color: Color(0xFFDC2626),
-              size: 20,
-            ),
+            Icon(Icons.logout, color: Color(0xFFDC2626), size: 20),
             SizedBox(width: 8),
             Text(
               'Keluar dari Akun',

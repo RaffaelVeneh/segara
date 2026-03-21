@@ -22,12 +22,10 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
       return;
     }
 
-    // Navigate to login screen with selected role
+    // Navigate to login screen
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => LoginScreen(role: _selectedRole!),
-      ),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
@@ -72,7 +70,7 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                             width: 534,
                             height: 95.10,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1466B8).withOpacity(0.05),
+                              color: const Color(0xFF1466B8).withValues(alpha: 0.05),
                             ),
                           ),
                         ),
@@ -84,11 +82,11 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                             width: 192,
                             height: 192,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFDBEAFE).withOpacity(0.60),
+                              color: const Color(0xFFDBEAFE).withValues(alpha: 0.60),
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 64,
                                   spreadRadius: 64,
                                 ),
@@ -96,7 +94,7 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                             ),
                           ),
                         ),
-                        
+
                         // Main content
                         Padding(
                           padding: const EdgeInsets.all(24.0),
@@ -105,7 +103,8 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                             children: [
                               // Header
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   // Logo
                                   Row(
@@ -114,16 +113,17 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                                         'assets/icons/logo-segara.png',
                                         width: 38,
                                         height: 38,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Container(
-                                            width: 38,
-                                            height: 38,
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xFF0077B6),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          );
-                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Container(
+                                                width: 38,
+                                                height: 38,
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFF0077B6),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              );
+                                            },
                                       ),
                                       const SizedBox(width: 6),
                                       const Text(
@@ -152,7 +152,9 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
+                                            color: Colors.black.withValues(alpha: 
+                                              0.05,
+                                            ),
                                             blurRadius: 2,
                                             offset: const Offset(0, 1),
                                           ),
@@ -200,7 +202,8 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                                 iconColor: const Color(0xFF1466B8),
                                 backgroundColor: const Color(0xFFEFF6FF),
                                 title: 'Pembeli Umum',
-                                description: 'Ikan Segar & Sehat untuk Keluarga',
+                                description:
+                                    'Ikan Segar & Sehat untuk Keluarga',
                                 isSelected: _selectedRole == 'buyer',
                               ),
                               const SizedBox(height: 24),
@@ -211,7 +214,8 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                                 iconColor: const Color(0xFF4F46E5),
                                 backgroundColor: const Color(0xFFEEF2FF),
                                 title: 'Mitra Strategis',
-                                description: 'Suplai Stabil & Harga Kontrak untuk\nBisnis',
+                                description:
+                                    'Suplai Stabil & Harga Kontrak untuk\nBisnis',
                                 isSelected: _selectedRole == 'mitra',
                               ),
                             ],
@@ -228,12 +232,9 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.50),
+                color: Colors.white.withValues(alpha: 0.50),
                 border: const Border(
-                  top: BorderSide(
-                    color: Color(0xFFF1F5F9),
-                    width: 1,
-                  ),
+                  top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
                 ),
               ),
               child: Column(
@@ -253,12 +254,12 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF1466B8).withOpacity(0.30),
+                            color: const Color(0xFF1466B8).withValues(alpha: 0.30),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           ),
                           BoxShadow(
-                            color: const Color(0xFF1466B8).withOpacity(0.30),
+                            color: const Color(0xFF1466B8).withValues(alpha: 0.30),
                             blurRadius: 6,
                             offset: const Offset(0, 4),
                           ),
@@ -347,7 +348,7 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1466B8).withOpacity(0.25),
+              color: const Color(0xFF1466B8).withValues(alpha: 0.25),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -368,11 +369,7 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                     color: backgroundColor,
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 25,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 25),
                 ),
                 // Radio button
                 Container(
@@ -386,7 +383,9 @@ class _PilihPenggunaScreenState extends State<PilihPenggunaScreen> {
                           : const Color(0xFFE2E8F0),
                       width: 2,
                     ),
-                    color: isSelected ? const Color(0xFF1466B8) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF1466B8)
+                        : Colors.transparent,
                   ),
                   child: isSelected
                       ? const Center(

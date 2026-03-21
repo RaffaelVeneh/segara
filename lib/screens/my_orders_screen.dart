@@ -10,7 +10,8 @@ class CartStorage {
       (item) => item['name'] == product['name'],
     );
     if (existingIndex >= 0) {
-      _items[existingIndex]['quantity'] = (_items[existingIndex]['quantity'] as int) + 1;
+      _items[existingIndex]['quantity'] =
+          (_items[existingIndex]['quantity'] as int) + 1;
     } else {
       _items.add(Map<String, dynamic>.from(product));
     }
@@ -21,7 +22,8 @@ class CartStorage {
       (item) => item['name'] == product['name'],
     );
     if (existingIndex >= 0) {
-      _items[existingIndex]['quantity'] = (_items[existingIndex]['quantity'] as int) + quantity;
+      _items[existingIndex]['quantity'] =
+          (_items[existingIndex]['quantity'] as int) + quantity;
     } else {
       final newItem = Map<String, dynamic>.from(product);
       newItem['quantity'] = quantity;
@@ -55,7 +57,9 @@ class CartStorage {
     }
   }
 
-  static void removeCheckedOutItems(List<Map<String, dynamic>> checkedOutItems) {
+  static void removeCheckedOutItems(
+    List<Map<String, dynamic>> checkedOutItems,
+  ) {
     for (var checkedOut in checkedOutItems) {
       final name = checkedOut['name'];
       final qty = (checkedOut['quantity'] as int?) ?? 0;
@@ -72,8 +76,15 @@ class CartStorage {
     }
   }
 
+  static void clear() {
+    _items.clear();
+  }
+
   static int getItemCount() {
-    return _items.fold(0, (sum, item) => sum + ((item['quantity'] as int?) ?? 0));
+    return _items.fold(
+      0,
+      (sum, item) => sum + ((item['quantity'] as int?) ?? 0),
+    );
   }
 
   static int getItemQuantity(String productName) {
@@ -125,9 +136,9 @@ class MyOrdersScreen extends StatefulWidget {
 class _MyOrdersScreenState extends State<MyOrdersScreen> {
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   Color _getStatusColor(String status) {
@@ -170,17 +181,19 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           // Orders list
           Expanded(
             child: orders.isEmpty
-            ? _buildEmptyState()
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                itemCount: orders.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _buildOrderCard(orders[orders.length - 1 - index]),
-                  );
-                },
-              ),
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildOrderCard(
+                          orders[orders.length - 1 - index],
+                        ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -194,7 +207,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -279,7 +292,10 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final items = order['items'] as List<Map<String, dynamic>>;
-    final totalItems = items.fold<int>(0, (sum, item) => sum + (item['quantity'] as int));
+    final totalItems = items.fold<int>(
+      0,
+      (sum, item) => sum + (item['quantity'] as int),
+    );
 
     return InkWell(
       onTap: () {
@@ -299,9 +315,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0D000000),
@@ -343,12 +357,15 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getStatusBgColor(order['status']),
                     borderRadius: BorderRadius.circular(9999),
                     border: Border.all(
-                      color: _getStatusColor(order['status']).withOpacity(0.3),
+                      color: _getStatusColor(order['status']).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
@@ -364,7 +381,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
             const Divider(height: 1, color: Color(0xFFF1F5F9)),
             const SizedBox(height: 16),
@@ -385,10 +402,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           height: 48,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 2,
-                            ),
+                            border: Border.all(color: Colors.white, width: 2),
                             boxShadow: const [
                               BoxShadow(
                                 color: Color(0x0D000000),
@@ -400,7 +414,8 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.asset(
-                              items[index]['image'] ?? 'assets/images/nilaMerah.png',
+                              items[index]['image'] ??
+                                  'assets/images/nilaMerah.png',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
@@ -419,7 +434,11 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: items.length > 1 ? (items.length > 3 ? 108 : items.length * 36.0 + 12) : 60),
+                SizedBox(
+                  width: items.length > 1
+                      ? (items.length > 3 ? 108 : items.length * 36.0 + 12)
+                      : 60,
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,10 +477,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF0284C7),
-                  width: 1.5,
-                ),
+                border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
               ),
               child: const Text(
                 'Lacak Pesanan',

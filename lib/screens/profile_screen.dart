@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'my_orders_screen.dart';
 import 'settings_screen.dart';
+import '../utils/app_snackbar.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String role;
 
-  const ProfileScreen({
-    super.key,
-    required this.role,
-  });
+  const ProfileScreen({super.key, required this.role});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -18,7 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final isMitra = widget.role == 'mitra';
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: Container(
@@ -27,8 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             center: const Alignment(-1.0, -1.0),
             radius: 1.414,
             colors: [
-              const Color(0xFF0D9488).withOpacity(0.05),
-              const Color(0xFF0D9488).withOpacity(0),
+              const Color(0xFF0D9488).withValues(alpha: 0.05),
+              const Color(0xFF0D9488).withValues(alpha: 0),
             ],
           ),
         ),
@@ -38,8 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               center: const Alignment(1.0, -1.0),
               radius: 1.414,
               colors: [
-                const Color(0xFF0284C7).withOpacity(0.05),
-                const Color(0xFF0284C7).withOpacity(0),
+                const Color(0xFF0284C7).withValues(alpha: 0.05),
+                const Color(0xFF0284C7).withValues(alpha: 0),
               ],
             ),
           ),
@@ -81,10 +80,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC).withOpacity(0.8),
-        border: const Border(
-          bottom: BorderSide(color: Colors.transparent),
-        ),
+        color: const Color(0xFFF8FAFC).withValues(alpha: 0.8),
+        border: const Border(bottom: BorderSide(color: Colors.transparent)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -173,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(9999),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 15,
                           offset: const Offset(0, 2),
                         ),
@@ -219,12 +216,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 4),
                           ),
@@ -270,9 +267,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFCCFBF1).withOpacity(0.5),
+                    color: const Color(0xFFCCFBF1).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(9999),
                   ),
                   child: Row(
@@ -315,7 +315,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: const Color(0xFFEFF6FF),
           iconColor: const Color(0xFF0284C7),
           onTap: () {
-            // TODO: Navigate to profile edit
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Fitur Edit Profile akan segera hadir pada update berikutnya.',
+                ),
+                backgroundColor: Color(0xFF0077B6),
+              ),
+            );
           },
         ),
         const SizedBox(height: 8),
@@ -326,7 +333,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: const Color(0xFFEFF6FF),
           iconColor: const Color(0xFF0284C7),
           onTap: () {
-            // TODO: Navigate to address
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Fitur Edit Address akan segera hadir pada update berikutnya.',
+                ),
+                backgroundColor: Color(0xFF0077B6),
+              ),
+            );
           },
         ),
         const SizedBox(height: 8),
@@ -337,7 +351,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: const Color(0xFFF0FDFA),
           iconColor: const Color(0xFF0D9488),
           onTap: () {
-            // TODO: Navigate to order history
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MyOrdersScreen()),
+            );
           },
         ),
         const SizedBox(height: 8),
@@ -348,7 +365,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: const Color(0xFFF8FAFC),
           iconColor: const Color(0xFF475569),
           onTap: () {
-            // TODO: Navigate to help center
+            AppSnackBar.showInfo(
+              context,
+              message: 'Fitur ini akan segera hadir pada update berikutnya.',
+            );
           },
         ),
         const SizedBox(height: 16),
@@ -393,7 +413,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 15,
               offset: const Offset(0, 2),
             ),
@@ -504,9 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           title: const Text(
             'Keluar',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w700),
           ),
           content: const Text('Apakah Anda yakin ingin keluar?'),
           actions: [
@@ -526,9 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Navigate to login and clear all routes
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(role: widget.role),
-                  ),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                   (route) => false,
                 );
               },

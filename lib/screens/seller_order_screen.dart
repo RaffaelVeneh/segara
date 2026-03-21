@@ -282,7 +282,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 40,
             offset: const Offset(0, 10),
           ),
@@ -300,7 +300,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                     end: Alignment.bottomRight,
                     colors: [
                       Colors.white,
-                      Colors.white.withOpacity(0),
+                      Colors.white.withValues(alpha: 0),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -316,11 +316,11 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                 width: 128,
                 height: 128,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.05),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF10B981).withOpacity(0.1),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
                       blurRadius: 60,
                       spreadRadius: 20,
                     ),
@@ -376,7 +376,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 6,
                 offset: const Offset(0, 4),
               ),
@@ -425,7 +425,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                       color: order['statusBg'] as Color,
                       borderRadius: BorderRadius.circular(9999),
                       border: Border.all(
-                        color: (order['statusBg'] as Color).withOpacity(0.1),
+                        color: (order['statusBg'] as Color).withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -639,7 +639,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                                 color: const Color(0xFF10B981),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 1,
                                     offset: const Offset(0, 1),
                                   ),
@@ -660,7 +660,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                               width: 4,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF10B981).withOpacity(0.3),
+                                color: const Color(0xFF10B981).withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(9999),
                               ),
                             ),
@@ -694,7 +694,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
-              shadowColor: Colors.black.withOpacity(0.05),
+              shadowColor: Colors.black.withValues(alpha: 0.05),
             ),
             child: const Text(
               'Tolak',
@@ -717,7 +717,7 @@ class _SellerOrderScreenState extends State<SellerOrderScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
-              shadowColor: Colors.black.withOpacity(0.05),
+              shadowColor: Colors.black.withValues(alpha: 0.05),
               disabledBackgroundColor: const Color(0xFFC7C7C7),
               disabledForegroundColor: Colors.white,
             ),
@@ -739,7 +739,7 @@ class _DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFE2E8F0).withOpacity(0.5)
+      ..color = const Color(0xFFE2E8F0).withValues(alpha: 0.5)
       ..strokeWidth = 6;
 
     const dashWidth = 10.0;

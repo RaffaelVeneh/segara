@@ -148,7 +148,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC).withOpacity(0.8),
+        color: const Color(0xFFF8FAFC).withValues(alpha: 0.8),
       ),
       child: Center(
         child: const Text(
@@ -202,14 +202,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFF0975AE).withOpacity(0.3),
+                    color: const Color(0xFF0975AE).withValues(alpha: 0.3),
                     blurRadius: 40,
                     offset: const Offset(0, 10),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 2,
                     offset: const Offset(0, 1),
                   ),
@@ -281,7 +281,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -307,7 +307,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.white.withOpacity(1),
+                        color: Colors.white.withValues(alpha: 1),
                         blurRadius: 0,
                         spreadRadius: 4,
                       ),
@@ -470,12 +470,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
             iconColor: notif['iconColor'] as Color,
             iconBg: notif['iconBg'] is Color
                 ? notif['iconBg'] as Color
-                : (notif['iconBg'] as Color).withOpacity(0.1),
+                : (notif['iconBg'] as Color).withValues(alpha: 0.1),
             title: notif['title'] as String,
             time: notif['time'] as String,
             timeBg: notif['timeBg'] is Color
                 ? notif['timeBg'] as Color
-                : (notif['timeBg'] as Color).withOpacity(0.05),
+                : (notif['timeBg'] as Color).withValues(alpha: 0.05),
             timeColor: notif['timeColor'] as Color,
             description: notif['description'] as String,
             hasAction: notif['hasAction'] as bool,

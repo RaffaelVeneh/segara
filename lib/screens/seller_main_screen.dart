@@ -39,7 +39,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -97,7 +97,7 @@ class _SellerMainScreenState extends State<SellerMainScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF0077B6).withOpacity(0.10) : Colors.transparent,
+          color: isActive ? const Color(0xFF0077B6).withValues(alpha: 0.10) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

@@ -315,7 +315,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                     color: _getStatusBgColor(status),
                     borderRadius: BorderRadius.circular(9999),
                     border: Border.all(
-                      color: _getStatusColor(status).withOpacity(0.3),
+                      color: _getStatusColor(status).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
