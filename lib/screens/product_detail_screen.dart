@@ -6,35 +6,34 @@ import 'my_orders_screen.dart';
 class ProductDetailScreen extends StatefulWidget {
   final Map<String, dynamic> product;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTickerProviderStateMixin {
+class _ProductDetailScreenState extends State<ProductDetailScreen>
+    with SingleTickerProviderStateMixin {
   double _quantity = 1.0;
   late TextEditingController _quantityController;
   late FocusNode _quantityFocusNode;
   late ScrollController _scrollController;
   final GlobalKey _quantityKey = GlobalKey();
-  late AnimationController _cartIconController; // animation for add-to-cart icon
+  late AnimationController
+  _cartIconController; // animation for add-to-cart icon
 
   bool get _isFreshFish {
     final type = widget.product['type'];
-    print('Product type raw: $type, Type: ${type.runtimeType}');
+    debugPrint('Product type raw: $type, Type: ${type.runtimeType}');
     return type == 'fresh';
   }
-  
+
   double get _minQuantity {
     final min = _isFreshFish ? 1.0 : 0.1;
-    print('Min quantity: $min (Fresh: $_isFreshFish)');
+    debugPrint('Min quantity: $min (Fresh: $_isFreshFish)');
     return min;
   }
-  
+
   // step calculation unused, quantity increments now handled inline
   // double get _stepQuantity {
   //   final step = _isFreshFish ? 1.0 : 0.1;
@@ -49,12 +48,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
     final cartQty = CartStorage.getItemQuantity(widget.product['name']);
     _quantity = cartQty > 0 ? cartQty.toDouble() : _minQuantity;
     _quantityController = TextEditingController(
-      text: _quantity.toInt() == _quantity ? '${_quantity.toInt()}' : _quantity.toStringAsFixed(1),
+      text: _quantity.toInt() == _quantity
+          ? '${_quantity.toInt()}'
+          : _quantity.toStringAsFixed(1),
     );
     _quantityFocusNode = FocusNode();
     _scrollController = ScrollController();
-    _cartIconController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200), lowerBound: 0.8, upperBound: 1.2);
-    
+    _cartIconController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+      lowerBound: 0.8,
+      upperBound: 1.2,
+    );
+
     // Add listener to scroll when keyboard appears
     _quantityFocusNode.addListener(() {
       if (_quantityFocusNode.hasFocus) {
@@ -84,7 +90,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
   void _updateQuantity(double newQuantity) {
     setState(() {
       _quantity = newQuantity;
-      _quantityController.text = _quantity.toInt() == _quantity ? '${_quantity.toInt()}' : _quantity.toStringAsFixed(1);
+      _quantityController.text = _quantity.toInt() == _quantity
+          ? '${_quantity.toInt()}'
+          : _quantity.toStringAsFixed(1);
       // Sync to cart if product already exists in cart
       final existingQty = CartStorage.getItemQuantity(widget.product['name']);
       if (existingQty > 0) {
@@ -94,54 +102,58 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
   }
 
   void _incrementQuantity() {
-    print('=== INCREMENT START ===');
-    print('Product data: ${widget.product}');
-    print('Type: ${widget.product['type']} (${widget.product['type'].runtimeType})');
-    print('Is Fresh Fish: $_isFreshFish');
-    
+    debugPrint('=== INCREMENT START ===');
+    debugPrint('Product data: ${widget.product}');
+    debugPrint(
+      'Type: ${widget.product['type']} (${widget.product['type'].runtimeType})',
+    );
+    debugPrint('Is Fresh Fish: $_isFreshFish');
+
     final isFresh = widget.product['type'] == 'fresh';
     final step = isFresh ? 1.0 : 0.1;
-    
-    print('Calculated step: $step');
-    
+
+    debugPrint('Calculated step: $step');
+
     double newQuantity = _quantity + step;
     // Prevent floating point precision issues
     newQuantity = double.parse(newQuantity.toStringAsFixed(1));
-    print('New quantity: $newQuantity');
-    print('=== INCREMENT END ===');
+    debugPrint('New quantity: $newQuantity');
+    debugPrint('=== INCREMENT END ===');
     _updateQuantity(newQuantity);
   }
 
   void _decrementQuantity() {
-    print('=== DECREMENT START ===');
-    print('Product data: ${widget.product}');
-    print('Type: ${widget.product['type']} (${widget.product['type'].runtimeType})');
-    print('Is Fresh Fish: $_isFreshFish');
-    
+    debugPrint('=== DECREMENT START ===');
+    debugPrint('Product data: ${widget.product}');
+    debugPrint(
+      'Type: ${widget.product['type']} (${widget.product['type'].runtimeType})',
+    );
+    debugPrint('Is Fresh Fish: $_isFreshFish');
+
     final isFresh = widget.product['type'] == 'fresh';
     final step = isFresh ? 1.0 : 0.1;
     final minQty = isFresh ? 1.0 : 0.1;
-    
-    print('Calculated step: $step');
-    print('Min quantity: $minQty');
-    
+
+    debugPrint('Calculated step: $step');
+    debugPrint('Min quantity: $minQty');
+
     if (_quantity > minQty) {
       double newQuantity = _quantity - step;
       // Prevent floating point precision issues
       newQuantity = double.parse(newQuantity.toStringAsFixed(1));
-      print('New quantity: $newQuantity');
+      debugPrint('New quantity: $newQuantity');
       if (newQuantity >= minQty) {
         _updateQuantity(newQuantity);
       } else {
         _updateQuantity(minQty);
       }
     }
-    print('=== DECREMENT END ===');
+    debugPrint('=== DECREMENT END ===');
   }
 
   void _onQuantityChanged(String value) {
     if (value.isEmpty) return;
-    
+
     final double? parsedValue = double.tryParse(value);
     if (parsedValue != null) {
       // Validate against minimum quantity
@@ -149,10 +161,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
         _updateQuantity(_minQuantity);
         return;
       }
-      
+
       // Round to 1 decimal place
       final roundedValue = double.parse(parsedValue.toStringAsFixed(1));
-      
+
       // For fresh fish, only allow whole numbers
       if (_isFreshFish) {
         _updateQuantity(roundedValue.roundToDouble());
@@ -234,7 +246,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0F4C75).withOpacity(0.1),
+                color: const Color(0xFF0F4C75).withValues(alpha: 0.1),
                 blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
@@ -296,12 +308,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             decoration: BoxDecoration(
               color: const Color(0xF2FFFFFF),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: const Color(0x99FFFFFF),
-              ),
+              border: Border.all(color: const Color(0x99FFFFFF)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 40,
                   offset: const Offset(0, 20),
                 ),
@@ -370,7 +380,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),
@@ -379,7 +389,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(9999),
                 ),
               ),
@@ -410,9 +420,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                   decoration: BoxDecoration(
                     color: const Color(0xB3FFFFFF),
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color(0x80FFFFFF),
-                    ),
+                    border: Border.all(color: const Color(0x80FFFFFF)),
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x0D000000),
@@ -429,7 +437,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 ),
               ),
 
-                  // (removed share and cart icons - they are redundant)
+              // (removed share and cart icons - they are redundant)
               const SizedBox(),
             ],
           ),
@@ -479,11 +487,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(
-                Icons.star,
-                color: Color(0xFFFBBF24),
-                size: 16,
-              ),
+              Icon(Icons.star, color: Color(0xFFFBBF24), size: 16),
               SizedBox(width: 6),
               Text(
                 '520 kg terjual',
@@ -509,7 +513,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
         border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0F4C75).withOpacity(0.1),
+            color: const Color(0xFF0F4C75).withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 10),
           ),
@@ -546,13 +550,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8F5E9),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0x1A40916C),
-                  ),
+                  border: Border.all(color: const Color(0x1A40916C)),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x0D000000),
@@ -563,11 +568,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 ),
                 child: Row(
                   children: const [
-                    Icon(
-                      Icons.verified,
-                      color: Color(0xFF40916C),
-                      size: 14,
-                    ),
+                    Icon(Icons.verified, color: Color(0xFF40916C), size: 14),
                     SizedBox(width: 6),
                     Text(
                       'Mitra Verified',
@@ -614,10 +615,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
           const SizedBox(height: 16),
 
           // Divider
-          Container(
-            height: 1,
-            color: const Color(0xFFF8FAFC),
-          ),
+          Container(height: 1, color: const Color(0xFFF8FAFC)),
           const SizedBox(height: 16),
 
           // Savings Info
@@ -652,7 +650,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                         ),
                       ),
                       TextSpan(
-                        text: ' dengan status Mitra. Minimal\npemesanan 10kg untuk harga grosir.',
+                        text:
+                            ' dengan status Mitra. Minimal\npemesanan 10kg untuk harga grosir.',
                       ),
                     ],
                   ),
@@ -671,11 +670,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
       children: [
         Row(
           children: const [
-            Icon(
-              Icons.insights,
-              color: Color(0xFF0F4C75),
-              size: 20,
-            ),
+            Icon(Icons.insights, color: Color(0xFF0F4C75), size: 20),
             SizedBox(width: 8),
             Text(
               'Kualitas Produk',
@@ -698,7 +693,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             ),
             children: [
               TextSpan(
-                text: 'Ikan Nila Merah yang dibudidayakan langsung\ndi kolam air deras ',
+                text:
+                    'Ikan Nila Merah yang dibudidayakan langsung\ndi kolam air deras ',
               ),
               TextSpan(
                 text: 'Sidoagung',
@@ -708,7 +704,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                 ),
               ),
               TextSpan(
-                text: '. Dikenal dengan\ndaging yang tebal, tekstur padat, rasa manis\nalami, dan bebas bau tanah karena sistem\nsirkulasi air yang baik. Sangat cocok untuk\nmenu restoran seafood premium.',
+                text:
+                    '. Dikenal dengan\ndaging yang tebal, tekstur padat, rasa manis\nalami, dan bebas bau tanah karena sistem\nsirkulasi air yang baik. Sangat cocok untuk\nmenu restoran seafood premium.',
               ),
             ],
           ),
@@ -751,9 +748,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
               decoration: BoxDecoration(
                 color: const Color(0xFFE8F5E9),
                 borderRadius: BorderRadius.circular(9999),
-                border: Border.all(
-                  color: const Color(0x3340916C),
-                ),
+                border: Border.all(color: const Color(0x3340916C)),
               ),
               child: const Text(
                 'Stok Tersedia: 500+ kg',
@@ -812,7 +807,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                       child: TextField(
                         controller: _quantityController,
                         focusNode: _quantityFocusNode,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 24,
@@ -858,17 +855,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 15,
                         offset: const Offset(0, 10),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                 ),
               ),
             ],
@@ -921,15 +914,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     ),
                     children: [
                       TextSpan(
-                        text: 'Pesanan diatas 100kg akan diproses\nmenggunakan ',
+                        text:
+                            'Pesanan diatas 100kg akan diproses\nmenggunakan ',
                       ),
                       TextSpan(
                         text: 'Armada Khusus',
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      TextSpan(
-                        text: ' untuk\nmenjaga suhu tetap 0-4°C.',
-                      ),
+                      TextSpan(text: ' untuk\nmenjaga suhu tetap 0-4°C.'),
                     ],
                   ),
                 ),
@@ -954,12 +946,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
             topLeft: Radius.circular(32),
             topRight: Radius.circular(32),
           ),
-          border: const Border(
-            top: BorderSide(color: Color(0xFFF1F5F9)),
-          ),
+          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9))),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 30,
               offset: const Offset(0, -8),
             ),
@@ -972,20 +962,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
               // Favorite Button
               GestureDetector(
                 onTap: () {
-                  final existingQty = CartStorage.getItemQuantity(widget.product['name']);
+                  final existingQty = CartStorage.getItemQuantity(
+                    widget.product['name'],
+                  );
                   if (existingQty > 0) {
                     // already in cart, go to cart screen
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => CartScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => CartScreen()),
                     );
                     return;
                   }
                   // Otherwise add new item
-                  final int qtyInt = _quantity.toInt() == _quantity ? _quantity.toInt() : 0;
-                  final double qtyDouble = _quantity.toInt() == _quantity ? _quantity.toDouble() : _quantity;
+                  final int qtyInt = _quantity.toInt() == _quantity
+                      ? _quantity.toInt()
+                      : 0;
+                  final double qtyDouble = _quantity.toInt() == _quantity
+                      ? _quantity.toDouble()
+                      : _quantity;
                   final dynamic finalQty = qtyInt > 0 ? qtyInt : qtyDouble;
                   final item = <String, dynamic>{
                     'name': widget.product['name'],
@@ -995,8 +989,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     'quantity': finalQty,
                     'type': widget.product['type'],
                   };
-                  CartStorage.addItemWithQuantity(item, (finalQty is int ? finalQty : (finalQty as double).toInt()));
-                  _cartIconController.forward().then((_) => _cartIconController.reverse());
+                  CartStorage.addItemWithQuantity(
+                    item,
+                    (finalQty is int ? finalQty : (finalQty as double).toInt()),
+                  );
+                  _cartIconController.forward().then(
+                    (_) => _cartIconController.reverse(),
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Ditambahkan ke keranjang'),
@@ -1037,27 +1036,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     Positioned(
                       right: -4,
                       top: -4,
-                      child: Builder(builder: (ctx) {
-                        final qty = CartStorage.getItemQuantity(widget.product['name']);
-                        if (qty <= 0) return const SizedBox.shrink();
-                        return Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-                          child: Text(
-                            '$qty',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      child: Builder(
+                        builder: (ctx) {
+                          final qty = CartStorage.getItemQuantity(
+                            widget.product['name'],
+                          );
+                          if (qty <= 0) return const SizedBox.shrink();
+                          return Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      }),
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Text(
+                              '$qty',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -1077,7 +1083,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0F4C75).withOpacity(0.3),
+                        color: const Color(0xFF0F4C75).withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 10),
                       ),
@@ -1088,10 +1094,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                     child: InkWell(
                       borderRadius: BorderRadius.circular(24),
                       onTap: () {
-                                // same logic repurposed
-                        final int qtyInt = _quantity.toInt() == _quantity ? _quantity.toInt() : 0;
-                        final double qtyDouble = _quantity.toInt() == _quantity ? _quantity.toDouble() : _quantity;
-                        final dynamic finalQty = qtyInt > 0 ? qtyInt : qtyDouble;
+                        // same logic repurposed
+                        final int qtyInt = _quantity.toInt() == _quantity
+                            ? _quantity.toInt()
+                            : 0;
+                        final double qtyDouble = _quantity.toInt() == _quantity
+                            ? _quantity.toDouble()
+                            : _quantity;
+                        final dynamic finalQty = qtyInt > 0
+                            ? qtyInt
+                            : qtyDouble;
                         final item = <String, dynamic>{
                           'name': widget.product['name'],
                           'price': widget.product['price'],
@@ -1101,11 +1113,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
                           'type': widget.product['type'],
                         };
                         // add to global cart and animate icon
-                        CartStorage.addItemWithQuantity(item, (finalQty is int ? finalQty : (finalQty as double).toInt()));
-                        _cartIconController.forward().then((_) => _cartIconController.reverse());
+                        CartStorage.addItemWithQuantity(
+                          item,
+                          (finalQty is int
+                              ? finalQty
+                              : (finalQty as double).toInt()),
+                        );
+                        _cartIconController.forward().then(
+                          (_) => _cartIconController.reverse(),
+                        );
                         // navigate to checkout with just this item
-                        final totalPrice = (widget.product['price'] as num).toInt() *
-                            (finalQty is int ? finalQty : (finalQty as double).toInt());
+                        final totalPrice =
+                            (widget.product['price'] as num).toInt() *
+                            (finalQty is int
+                                ? finalQty
+                                : (finalQty as double).toInt());
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -1148,8 +1170,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> with SingleTi
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 }

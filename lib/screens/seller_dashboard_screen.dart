@@ -76,7 +76,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
@@ -92,7 +92,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               width: 990,
               height: 110.36,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.10),
+                color: Colors.white.withValues(alpha: 0.10),
               ),
             ),
           ),
@@ -120,7 +120,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                             width: 16,
                             height: 16,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.40),
+                              color: Colors.white.withValues(alpha: 0.40),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -129,7 +129,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                             width: 16,
                             height: 16,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.40),
+                              color: Colors.white.withValues(alpha: 0.40),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -203,10 +203,10 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.10),
+                          color: Colors.white.withValues(alpha: 0.10),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.20),
+                            color: Colors.white.withValues(alpha: 0.20),
                           ),
                         ),
                         child: Stack(
@@ -259,7 +259,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -280,8 +280,8 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                         end: Alignment.bottomRight,
                         colors: [
                           Colors.white,
-                          Colors.white.withOpacity(0.90),
-                          Colors.white.withOpacity(0),
+                          Colors.white.withValues(alpha: 0.90),
+                          Colors.white.withValues(alpha: 0),
                         ],
                         stops: const [0.0, 0.5, 1.0],
                       ),
@@ -392,7 +392,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0077B6).withOpacity(0.30),
+                  color: const Color(0xFF0077B6).withValues(alpha: 0.30),
                   blurRadius: 15,
                 ),
               ],
@@ -407,7 +407,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.10),
+                      color: Colors.white.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -419,14 +419,14 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                       children: [
                         Icon(
                           Icons.inventory_2,
-                          color: Colors.white.withOpacity(0.90),
+                          color: Colors.white.withValues(alpha: 0.90),
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'SIAP PANEN',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.80),
+                            color: Colors.white.withValues(alpha: 0.80),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5,
@@ -451,7 +451,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                         Text(
                           'Kg',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.70),
+                            color: Colors.white.withValues(alpha: 0.70),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -462,7 +462,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.20),
+                        color: Colors.white.withValues(alpha: 0.20),
                         borderRadius: BorderRadius.circular(9999),
                       ),
                       child: Row(
@@ -507,7 +507,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFF48C06).withOpacity(0.30),
+            color: const Color(0xFFF48C06).withValues(alpha: 0.30),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -518,7 +518,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.20),
+              color: Colors.white.withValues(alpha: 0.20),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -543,7 +543,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
                 Text(
                   'Diskon 20% untuk pembelian >100Kg',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.90),
+                    color: Colors.white.withValues(alpha: 0.90),
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
@@ -570,7 +570,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         border: Border.all(color: const Color(0xFFF8FAFC)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -966,7 +966,7 @@ class _SellerDashboardScreenState extends State<SellerDashboardScreen> {
         border: Border.all(color: const Color(0xFFF8FAFC)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),

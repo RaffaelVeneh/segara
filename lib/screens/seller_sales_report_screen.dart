@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
+import '../utils/app_snackbar.dart';
+
 class SellerSalesReportScreen extends StatefulWidget {
   const SellerSalesReportScreen({super.key});
 
@@ -79,7 +81,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
               height: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFFEFF6FF).withOpacity(0.6),
+                color: const Color(0xFFEFF6FF).withValues(alpha: 0.6),
               ),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
@@ -124,10 +126,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
                       const SizedBox(height: 8),
 
                       // Divider
-                      Container(
-                        height: 8,
-                        color: const Color(0xFFF8FAFC),
-                      ),
+                      Container(height: 8, color: const Color(0xFFF8FAFC)),
 
                       const SizedBox(height: 24),
 
@@ -155,7 +154,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 48, 24, 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         border: const Border(
           bottom: BorderSide(color: Color(0xFFE2E8F0), width: 1),
         ),
@@ -208,7 +207,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0077B6).withOpacity(0.2),
+            color: const Color(0xFF0077B6).withValues(alpha: 0.2),
             offset: const Offset(0, 4),
             blurRadius: 12,
           ),
@@ -247,11 +246,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: const [
-                Icon(
-                  Icons.trending_up,
-                  size: 16,
-                  color: Color(0xFF16A34A),
-                ),
+                Icon(Icons.trending_up, size: 16, color: Color(0xFF16A34A)),
                 SizedBox(width: 4),
                 Text(
                   '+12% vs bulan lalu',
@@ -283,7 +278,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             offset: const Offset(0, 2),
             blurRadius: 4,
           ),
@@ -293,10 +288,9 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // TODO: Implement PDF generation
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Fitur print laporan akan segera hadir'),
+                content: Text('Fitur unduh PDF segera hadir'),
                 backgroundColor: Color(0xFF0077B6),
               ),
             );
@@ -306,11 +300,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: const [
-                Icon(
-                  Icons.print,
-                  size: 20,
-                  color: Colors.white,
-                ),
+                Icon(Icons.print, size: 20, color: Colors.white),
                 SizedBox(width: 8),
                 Text(
                   'Print Laporan Keuangan',
@@ -459,12 +449,9 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
         ),
         InkWell(
           onTap: () {
-            // TODO: Implement filter dialog
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Fitur filter akan segera hadir'),
-                backgroundColor: Color(0xFF0284C7),
-              ),
+            AppSnackBar.showInfo(
+              context,
+              message: 'Fitur ini akan segera hadir pada update berikutnya.',
             );
           },
           child: const Text(
@@ -491,7 +478,7 @@ class _SellerSalesReportScreenState extends State<SellerSalesReportScreen> {
           bottom: 0,
           child: Container(
             width: 1,
-            color: const Color(0xFFFEFEF2).withOpacity(0.8),
+            color: const Color(0xFFFEFEF2).withValues(alpha: 0.8),
           ),
         ),
 

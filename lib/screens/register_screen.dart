@@ -6,10 +6,7 @@ import 'login_screen.dart';
 class RegisterScreen extends StatefulWidget {
   final String role; // 'buyer' or 'mitra'
 
-  const RegisterScreen({
-    super.key,
-    required this.role,
-  });
+  const RegisterScreen({super.key, required this.role});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -17,25 +14,25 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Common fields
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   // Buyer specific
   bool _useTelephone = true; // true = phone, false = email
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _agreeTerms = false;
-  
+
   // Mitra specific
   final _businessNameController = TextEditingController();
   final _nibController = TextEditingController();
   String? _selectedCategory;
   final _estimatedNeedController = TextEditingController();
-  
+
   final List<String> _businessCategories = [
     'Rumah Makan',
     'Restoran',
@@ -103,9 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // Navigate to login
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => LoginScreen(role: widget.role),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     }
   }
@@ -113,9 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _goToLogin() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => LoginScreen(role: widget.role),
-      ),
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
     );
   }
 
@@ -139,7 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 24),
-                    
+
                     // Hero banner
                     if (isBuyer) _buildBuyerBanner(),
                     if (isBuyer) const SizedBox(height: 20),
@@ -149,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       key: _formKey,
                       child: isBuyer ? _buildBuyerForm() : _buildMitraForm(),
                     ),
-                    
+
                     const SizedBox(height: 100),
                   ],
                 ),
@@ -171,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
@@ -190,9 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Expanded(
                 child: Text(
-                  isBuyer
-                      ? 'DAFTAR AKUN BARU & MITRA'
-                      : '',
+                  isBuyer ? 'DAFTAR AKUN BARU & MITRA' : '',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Color(0xFF1E293B),
@@ -205,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(width: 48),
             ],
           ),
-          
+
           if (!isBuyer) ...[
             const SizedBox(height: 8),
             Padding(
@@ -246,16 +237,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       height: 160,
       decoration: BoxDecoration(
-        color: const Color(0xFF0077B6).withOpacity(0.20),
+        color: const Color(0xFF0077B6).withValues(alpha: 0.20),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 6,
             offset: const Offset(0, 4),
           ),
@@ -273,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  color: const Color(0xFF0077B6).withOpacity(0.20),
+                  color: const Color(0xFF0077B6).withValues(alpha: 0.20),
                   child: const Center(
                     child: Icon(
                       Icons.group_add,
@@ -285,17 +276,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
             ),
           ),
-          
+
           // Color overlay (multiply blend)
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF0077B6).withOpacity(0.10),
+                color: const Color(0xFF0077B6).withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
-          
+
           // Gradient overlay
           Positioned.fill(
             child: Container(
@@ -305,8 +296,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    const Color(0xFF0077B6).withOpacity(0),
-                    const Color(0xFF0077B6).withOpacity(0.70),
+                    const Color(0xFF0077B6).withValues(alpha: 0),
+                    const Color(0xFF0077B6).withValues(alpha: 0.70),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -350,7 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 30,
             offset: const Offset(0, 8),
           ),
@@ -407,7 +398,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -421,12 +412,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: _useTelephone ? Colors.white : Colors.transparent,
+                        color: _useTelephone
+                            ? Colors.white
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: _useTelephone
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 2,
                                   offset: const Offset(0, 1),
                                 ),
@@ -468,12 +461,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: !_useTelephone ? Colors.white : Colors.transparent,
+                        color: !_useTelephone
+                            ? Colors.white
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: !_useTelephone
                             ? [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 2,
                                   offset: const Offset(0, 1),
                                 ),
@@ -566,10 +561,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.only(top: 12),
                   child: RichText(
                     text: const TextSpan(
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.25,
-                      ),
+                      style: TextStyle(fontSize: 12, height: 1.25),
                       children: [
                         TextSpan(
                           text: 'Saya setuju dengan ',
@@ -697,7 +689,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -716,11 +708,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Color(0xFFE0F2FE),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF0077B6),
-                  size: 16,
-                ),
+                child: Icon(icon, color: const Color(0xFF0077B6), size: 16),
               ),
               const SizedBox(width: 12),
               Text(
@@ -798,12 +786,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: 1,
                   ),
                 ),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: prefix != null ? 48 : (suffix != null ? 16 : 16),
-                  vertical: 13,
-                ).copyWith(
-                  right: suffix != null ? 90 : (prefix != null ? 16 : 16),
-                ),
+                contentPadding:
+                    EdgeInsets.symmetric(
+                      horizontal: prefix != null
+                          ? 48
+                          : (suffix != null ? 16 : 16),
+                      vertical: 13,
+                    ).copyWith(
+                      right: suffix != null ? 90 : (prefix != null ? 16 : 16),
+                    ),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -821,10 +812,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.only(right: 8),
                   decoration: const BoxDecoration(
                     border: Border(
-                      right: BorderSide(
-                        color: Color(0xFFCBD5E1),
-                        width: 1,
-                      ),
+                      right: BorderSide(color: Color(0xFFCBD5E1), width: 1),
                     ),
                   ),
                   child: Center(
@@ -846,7 +834,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 top: 0,
                 bottom: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF1F5F9),
@@ -904,24 +895,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             fillColor: const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFF0077B6),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF0077B6), width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -990,24 +972,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             fillColor: const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFF0077B6),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF0077B6), width: 1),
             ),
             contentPadding: const EdgeInsets.all(16),
           ),
@@ -1044,31 +1017,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             hintText: hint,
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFFE2E8F0),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Color(0xFF0077B6),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF0077B6), width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -1076,10 +1040,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
           items: items.map((item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
+            return DropdownMenuItem(value: item, child: Text(item));
           }).toList(),
           onChanged: onChanged,
           validator: (value) {
@@ -1099,10 +1060,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFE2E8F0),
-          width: 1,
-        ),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
       child: Center(
         child: Container(
@@ -1112,7 +1070,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             borderRadius: BorderRadius.circular(9999),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.10),
+                color: Colors.black.withValues(alpha: 0.10),
                 blurRadius: 6,
                 offset: const Offset(0, 4),
               ),
@@ -1121,11 +1079,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(
-                Icons.location_on,
-                color: Color(0xFF0077B6),
-                size: 10.5,
-              ),
+              Icon(Icons.location_on, color: Color(0xFF0077B6), size: 10.5),
               SizedBox(width: 8),
               Text(
                 'Pinpoint Lokasi',
@@ -1155,12 +1109,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.camera_alt, color: Color(0xFF0077B6)),
+                  leading: const Icon(
+                    Icons.camera_alt,
+                    color: Color(0xFF0077B6),
+                  ),
                   title: const Text('Kamera'),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library, color: Color(0xFF0077B6)),
+                  leading: const Icon(
+                    Icons.photo_library,
+                    color: Color(0xFF0077B6),
+                  ),
                   title: const Text('Galeri'),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
@@ -1226,7 +1186,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           runSpacing: 8,
           children: List.generate(5, (index) {
             final hasPhoto = _photos[index] != null;
-            
+
             return GestureDetector(
               onTap: () => _pickImage(index),
               child: Container(
@@ -1236,7 +1196,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: hasPhoto ? const Color(0xFF0077B6) : const Color(0xFFCBD5E1),
+                    color: hasPhoto
+                        ? const Color(0xFF0077B6)
+                        : const Color(0xFFCBD5E1),
                     width: hasPhoto ? 2 : 1,
                   ),
                 ),
@@ -1267,7 +1229,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       blurRadius: 4,
                                       offset: const Offset(0, 2),
                                     ),
@@ -1313,22 +1277,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildBottomAction(String roleLabel) {
     final isBuyer = widget.role == 'buyer';
-    
+
     return Container(
-      padding: const EdgeInsets. fromLTRB(24, 24, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(isBuyer ? 0.90 : 0.95),
+        color: Colors.white.withValues(alpha: isBuyer ? 0.90 : 0.95),
         border: const Border(
-          top: BorderSide(
-            color: Color(0xFFF1F5F9),
-            width: 1,
-          ),
+          top: BorderSide(color: Color(0xFFF1F5F9), width: 1),
         ),
         boxShadow: isBuyer
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 20,
                   offset: const Offset(0, -4),
                 ),
@@ -1353,12 +1314,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 borderRadius: BorderRadius.circular(isBuyer ? 20 : 12),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0077B6).withOpacity(0.30),
+                    color: const Color(0xFF0077B6).withValues(alpha: 0.30),
                     blurRadius: 15,
                     offset: const Offset(0, 10),
                   ),
                   BoxShadow(
-                    color: const Color(0xFF0077B6).withOpacity(0.30),
+                    color: const Color(0xFF0077B6).withValues(alpha: 0.30),
                     blurRadius: 6,
                     offset: const Offset(0, 4),
                   ),
@@ -1405,10 +1366,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onTap: _goToLogin,
             child: RichText(
               text: const TextSpan(
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 16 / 12,
-                ),
+                style: TextStyle(fontSize: 12, height: 16 / 12),
                 children: [
                   TextSpan(
                     text: 'Sudah punya akun? ',

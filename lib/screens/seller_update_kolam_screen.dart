@@ -1,98 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SellerUpdateKolamScreen extends StatefulWidget {
+import '../providers/app_providers.dart';
+import '../services/seller_pond_service.dart';
+import '../utils/app_snackbar.dart';
+
+class SellerUpdateKolamScreen extends ConsumerStatefulWidget {
   const SellerUpdateKolamScreen({super.key});
 
   @override
-  State<SellerUpdateKolamScreen> createState() => _SellerUpdateKolamScreenState();
+  ConsumerState<SellerUpdateKolamScreen> createState() =>
+      _SellerUpdateKolamScreenState();
 }
 
-class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
+class _SellerUpdateKolamScreenState
+    extends ConsumerState<SellerUpdateKolamScreen> {
   final _kapasitasController = TextEditingController();
   final _beratTotalController = TextEditingController();
   final _beratPanenController = TextEditingController();
-  
-  String? _selectedKolam;
+
+  String? _selectedKolamId;
   String _selectedJenisIkan = 'Nila';
   DateTime? _tanggalTebar;
   DateTime? _estimasiPanen;
-  
-  // Berat per jenis ikan
-  final Map<String, double> _beratPerJenis = {
-    'Nila': 0,
-    'Bawal': 0,
-    'Lele': 0,
-  };
-  
-  // Data dummy kolam
-  final List<Map<String, dynamic>> _kolamList = [
-    {
-      'id': '1',
-      'name': 'Kolam A1',
-      'jenis': 'Nila',
-      'kapasitas': 30000,
-      'beratTotal': 1500,
-      'beratPanen': 1200,
-      'tanggalTebar': DateTime(2024, 1, 15),
-      'estimasiPanen': DateTime(2024, 7, 15),
-      'beratPerJenis': {'Nila': 1500, 'Bawal': 0, 'Lele': 0},
-    },
-    {
-      'id': '2',
-      'name': 'Kolam A2',
-      'jenis': 'Bawal',
-      'kapasitas': 25000,
-      'beratTotal': 1200,
-      'beratPanen': 800,
-      'tanggalTebar': DateTime(2024, 2, 1),
-      'estimasiPanen': DateTime(2024, 8, 1),
-      'beratPerJenis': {'Nila': 0, 'Bawal': 1200, 'Lele': 0},
-    },
-    {
-      'id': '3',
-      'name': 'Kolam B1',
-      'jenis': 'Lele',
-      'kapasitas': 20000,
-      'beratTotal': 950,
-      'beratPanen': 700,
-      'tanggalTebar': DateTime(2024, 1, 20),
-      'estimasiPanen': DateTime(2024, 5, 20),
-      'beratPerJenis': {'Nila': 0, 'Bawal': 0, 'Lele': 950},
-    },
-    {
-      'id': '4',
-      'name': 'Kolam B2',
-      'jenis': 'Nila',
-      'kapasitas': 35000,
-      'beratTotal': 2100,
-      'beratPanen': 1800,
-      'tanggalTebar': DateTime(2023, 12, 10),
-      'estimasiPanen': DateTime(2024, 6, 10),
-      'beratPerJenis': {'Nila': 2100, 'Bawal': 0, 'Lele': 0},
-    },
-    {
-      'id': '5',
-      'name': 'Kolam C1',
-      'jenis': 'Bawal',
-      'kapasitas': 28000,
-      'beratTotal': 1400,
-      'beratPanen': 1100,
-      'tanggalTebar': DateTime(2024, 1, 5),
-      'estimasiPanen': DateTime(2024, 7, 5),
-      'beratPerJenis': {'Nila': 0, 'Bawal': 1400, 'Lele': 0},
-    },
-    {
-      'id': '6',
-      'name': 'Kolam C2',
-      'jenis': 'Nila',
-      'kapasitas': 32000,
-      'beratTotal': 1850,
-      'beratPanen': 1500,
-      'tanggalTebar': DateTime(2024, 2, 15),
-      'estimasiPanen': DateTime(2024, 8, 15),
-      'beratPerJenis': {'Nila': 1850, 'Bawal': 0, 'Lele': 0},
-    },
-  ];
+  bool _isSubmitting = false;
+
+  final Map<String, double> _beratPerJenis = {'Nila': 0, 'Bawal': 0, 'Lele': 0};
 
   @override
   void dispose() {
@@ -101,22 +34,19 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
     _beratPanenController.dispose();
     super.dispose();
   }
-  
-  void _loadSelectedKolam() {
-    if (_selectedKolam != null) {
-      final kolam = _kolamList.firstWhere((k) => k['name'] == _selectedKolam);
-      setState(() {
-        _selectedJenisIkan = kolam['jenis'];
-        _kapasitasController.text = kolam['kapasitas'].toString();
-        _beratTotalController.text = kolam['beratTotal'].toString();
-        _beratPanenController.text = kolam['beratPanen'].toString();
-        _tanggalTebar = kolam['tanggalTebar'];
-        _estimasiPanen = kolam['estimasiPanen'];
-        _beratPerJenis.addAll(Map<String, double>.from(kolam['beratPerJenis']));
-      });
-    }
+
+  void _loadSelectedKolam(SellerPond pond) {
+    setState(() {
+      _selectedJenisIkan = pond.fishType ?? 'Nila';
+      _kapasitasController.text = pond.capacity.toString();
+      _beratTotalController.text = '';
+      _beratPanenController.text = '';
+      _tanggalTebar = pond.startedAt;
+      _estimasiPanen = pond.estHarvestAt;
+      _beratPerJenis.updateAll((key, value) => 0);
+    });
   }
-  
+
   String _getBeratTotalText() {
     if (_beratPerJenis.values.every((value) => value == 0)) {
       return 'Berat total seluruh ikan:\nNila 0kg | Bawal 0kg | Lele 0kg';
@@ -139,7 +69,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
                     offset: const Offset(0, -47),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildForm(),
+                      child: _buildForm(ref.watch(sellerPondsProvider)),
                     ),
                   ),
                   _buildFooterText(),
@@ -171,7 +101,6 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
       ),
       child: Stack(
         children: [
-          // Background pattern overlay
           Positioned(
             top: 56,
             left: 0,
@@ -179,13 +108,18 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
             child: Container(
               height: 128,
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2FE).withOpacity(0.5),
+                color: const Color(0xFFE0F2FE).withValues(alpha: 0.5),
               ),
             ),
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(top: 48, bottom: 24, left: 24, right: 24),
+              padding: const EdgeInsets.only(
+                top: 48,
+                bottom: 24,
+                left: 24,
+                right: 24,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -231,7 +165,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(AsyncValue<List<SellerPond>> pondsAsync) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -248,7 +182,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildKolamDropdown(),
+          _buildKolamDropdown(pondsAsync),
           const SizedBox(height: 24),
           _buildJenisIkan(),
           const SizedBox(height: 24),
@@ -268,7 +202,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
             keyboardType: TextInputType.number,
             onChanged: (value) {
               setState(() {
-                _beratPerJenis[_selectedJenisIkan] = 
+                _beratPerJenis[_selectedJenisIkan] =
                     double.tryParse(value) ?? 0;
               });
             },
@@ -321,7 +255,9 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
     );
   }
 
-  Widget _buildKolamDropdown() {
+  Widget _buildKolamDropdown(AsyncValue<List<SellerPond>> pondsAsync) {
+    final ponds = pondsAsync.asData?.value ?? const <SellerPond>[];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -346,7 +282,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _selectedKolam,
+              value: _selectedKolamId,
               hint: const Text(
                 'Pilih kolam tersedia...',
                 style: TextStyle(
@@ -360,28 +296,80 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
                 Icons.keyboard_arrow_down,
                 color: Color(0xFF64748B),
               ),
-              items: _kolamList.map((kolam) {
-                return DropdownMenuItem<String>(
-                  value: kolam['name'],
-                  child: Text(
-                    kolam['name'],
-                    style: const TextStyle(
-                      color: Color(0xFF1E293B),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+              items: ponds
+                  .map(
+                    (kolam) => DropdownMenuItem<String>(
+                      value: kolam.id,
+                      child: Text(
+                        kolam.code,
+                        style: const TextStyle(
+                          color: Color(0xFF1E293B),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedKolam = value;
-                  _loadSelectedKolam();
-                });
-              },
+                  )
+                  .toList(),
+              onChanged: pondsAsync.isLoading
+                  ? null
+                  : (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      final selectedPond = ponds.where(
+                        (pond) => pond.id == value,
+                      );
+                      if (selectedPond.isEmpty) {
+                        return;
+                      }
+                      setState(() {
+                        _selectedKolamId = value;
+                      });
+                      _loadSelectedKolam(selectedPond.first);
+                    },
             ),
           ),
         ),
+        if (pondsAsync.isLoading)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Memuat data kolam...',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          )
+        else if (pondsAsync.hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: GestureDetector(
+              onTap: () => ref.invalidate(sellerPondsProvider),
+              child: const Text(
+                'Gagal memuat kolam. Ketuk untuk coba lagi.',
+                style: TextStyle(
+                  color: Color(0xFFEF4444),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          )
+        else if (ponds.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Belum ada data kolam tersedia.',
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -496,28 +484,22 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          // Save current input before switching
           if (_beratTotalController.text.isNotEmpty) {
-            _beratPerJenis[_selectedJenisIkan] = 
+            _beratPerJenis[_selectedJenisIkan] =
                 double.tryParse(_beratTotalController.text) ?? 0;
           }
-          
-          // Switch to new fish type
+
           _selectedJenisIkan = label;
-          
-          // Load the saved weight for this fish type
-          _beratTotalController.text = 
-              _beratPerJenis[label]! > 0 
-                  ? _beratPerJenis[label]!.toStringAsFixed(0) 
-                  : '';
+
+          _beratTotalController.text = _beratPerJenis[label]! > 0
+              ? _beratPerJenis[label]!.toStringAsFixed(0)
+              : '';
         });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0x1A0077B6)
-              : const Color(0xFFF8FAFC),
+          color: isSelected ? const Color(0x1A0077B6) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
@@ -587,8 +569,8 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
                       ? '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}'
                       : 'mm/dd/yyyy',
                   style: TextStyle(
-                    color: date != null 
-                        ? const Color(0xFF1E293B) 
+                    color: date != null
+                        ? const Color(0xFF1E293B)
                         : const Color(0xFF94A3B8),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -609,10 +591,7 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
 
   Widget _buildUpdateButton() {
     return GestureDetector(
-      onTap: () {
-        // TODO: Update kolam data
-        Navigator.pop(context);
-      },
+      onTap: _isSubmitting ? null : _submitUpdate,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -633,21 +612,27 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Update Kolam',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+          children: [
+            if (_isSubmitting)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            else
+              const Text(
+                'Update Kolam',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.arrow_forward,
-              color: Colors.white,
-              size: 16,
-            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
           ],
         ),
       ),
@@ -685,6 +670,75 @@ class _SellerUpdateKolamScreenState extends State<SellerUpdateKolamScreen> {
           _estimasiPanen = picked;
         }
       });
+    }
+  }
+
+  Future<void> _submitUpdate() async {
+    if (_selectedKolamId == null || _selectedKolamId!.isEmpty) {
+      AppSnackBar.showError(
+        context,
+        message: 'Pilih kolam yang akan diupdate.',
+      );
+      return;
+    }
+
+    final capacity = int.tryParse(_kapasitasController.text.trim());
+    if (capacity == null || capacity <= 0) {
+      AppSnackBar.showError(context, message: 'Kapasitas kolam tidak valid.');
+      return;
+    }
+
+    if (_tanggalTebar == null || _estimasiPanen == null) {
+      AppSnackBar.showError(
+        context,
+        message: 'Tanggal tebar dan estimasi panen wajib diisi.',
+      );
+      return;
+    }
+
+    if (_estimasiPanen!.isBefore(_tanggalTebar!)) {
+      AppSnackBar.showError(
+        context,
+        message: 'Estimasi panen tidak boleh lebih awal dari tanggal tebar.',
+      );
+      return;
+    }
+
+    final beratTotal = double.tryParse(_beratTotalController.text.trim()) ?? 0;
+    final beratPanen = double.tryParse(_beratPanenController.text.trim()) ?? 0;
+    final status = (beratTotal > 0 && beratPanen >= beratTotal)
+        ? 'READY'
+        : 'GROWING';
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      await ref
+          .read(sellerPondServiceProvider)
+          .updatePond(
+            pondId: _selectedKolamId!,
+            capacity: capacity,
+            status: status,
+            fishType: _selectedJenisIkan,
+            startedAt: _tanggalTebar,
+            estHarvestAt: _estimasiPanen,
+          );
+      ref.invalidate(sellerPondsProvider);
+
+      if (!mounted) return;
+      AppSnackBar.showSuccess(context, message: 'Kolam berhasil diperbarui.');
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.showError(context, message: e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../services/seller_pond_service.dart';
+import '../utils/app_snackbar.dart';
+
 class SellerAddKolamScreen extends StatefulWidget {
   const SellerAddKolamScreen({super.key});
 
@@ -12,17 +15,15 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
   final _kapasitasController = TextEditingController();
   final _beratTotalController = TextEditingController();
   final _beratPanenController = TextEditingController();
-  
+  final SellerPondService _pondService = SellerPondService();
+
   String _selectedJenisIkan = 'Nila';
   DateTime? _tanggalTebar;
   DateTime? _estimasiPanen;
-  
+  bool _isSubmitting = false;
+
   // Berat per jenis ikan
-  final Map<String, double> _beratPerJenis = {
-    'Nila': 0,
-    'Bawal': 0,
-    'Lele': 0,
-  };
+  final Map<String, double> _beratPerJenis = {'Nila': 0, 'Bawal': 0, 'Lele': 0};
 
   @override
   void dispose() {
@@ -32,7 +33,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
     _beratPanenController.dispose();
     super.dispose();
   }
-  
+
   String _getBeratTotalText() {
     if (_beratPerJenis.values.every((value) => value == 0)) {
       return 'Berat total seluruh ikan:\nNila 0kg | Bawal 0kg | Lele 0kg';
@@ -95,13 +96,18 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
             child: Container(
               height: 128,
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2FE).withOpacity(0.5),
+                color: const Color(0xFFE0F2FE).withValues(alpha: 0.5),
               ),
             ),
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(top: 48, bottom: 24, left: 24, right: 24),
+              padding: const EdgeInsets.only(
+                top: 48,
+                bottom: 24,
+                left: 24,
+                right: 24,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -183,7 +189,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
             keyboardType: TextInputType.number,
             onChanged: (value) {
               setState(() {
-                _beratPerJenis[_selectedJenisIkan] = 
+                _beratPerJenis[_selectedJenisIkan] =
                     double.tryParse(value) ?? 0;
               });
             },
@@ -319,7 +325,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A3D62).withOpacity(0.04),
+            color: const Color(0xFF0A3D62).withValues(alpha: 0.04),
             blurRadius: 30,
             offset: const Offset(0, 8),
           ),
@@ -333,11 +339,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
             children: [
               Row(
                 children: const [
-                  Icon(
-                    Icons.location_on,
-                    color: Color(0xFF0A3D62),
-                    size: 16,
-                  ),
+                  Icon(Icons.location_on, color: Color(0xFF0A3D62), size: 16),
                   SizedBox(width: 8),
                   Text(
                     'Alamat Kolam',
@@ -351,7 +353,14 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
               ),
               GestureDetector(
                 onTap: () {
-                  // TODO: Edit address
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Fitur Edit Address akan segera hadir pada update berikutnya.',
+                      ),
+                      backgroundColor: Color(0xFF0077B6),
+                    ),
+                  );
                 },
                 child: const Text(
                   'Ubah',
@@ -405,7 +414,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0A3D62).withOpacity(0.05),
+                    color: const Color(0xFF0A3D62).withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
@@ -414,7 +423,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.90),
+                      color: Colors.white.withValues(alpha: 0.90),
                       shape: BoxShape.circle,
                       boxShadow: const [
                         BoxShadow(
@@ -477,26 +486,23 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
         setState(() {
           // Save current input before switching
           if (_beratTotalController.text.isNotEmpty) {
-            _beratPerJenis[_selectedJenisIkan] = 
+            _beratPerJenis[_selectedJenisIkan] =
                 double.tryParse(_beratTotalController.text) ?? 0;
           }
-          
+
           // Switch to new fish type
           _selectedJenisIkan = label;
-          
+
           // Load the saved weight for this fish type
-          _beratTotalController.text = 
-              _beratPerJenis[label]! > 0 
-                  ? _beratPerJenis[label]!.toStringAsFixed(0) 
-                  : '';
+          _beratTotalController.text = _beratPerJenis[label]! > 0
+              ? _beratPerJenis[label]!.toStringAsFixed(0)
+              : '';
         });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0x1A0077B6)
-              : const Color(0xFFF8FAFC),
+          color: isSelected ? const Color(0x1A0077B6) : const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
@@ -566,8 +572,8 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
                       ? '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}'
                       : 'mm/dd/yyyy',
                   style: TextStyle(
-                    color: date != null 
-                        ? const Color(0xFF1E293B) 
+                    color: date != null
+                        ? const Color(0xFF1E293B)
                         : const Color(0xFF94A3B8),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -588,10 +594,7 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
 
   Widget _buildSaveButton() {
     return GestureDetector(
-      onTap: () {
-        // TODO: Save kolam data
-        Navigator.pop(context);
-      },
+      onTap: _isSubmitting ? null : _submitKolam,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -612,21 +615,27 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              'Simpan & Aktifkan Kolam',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+          children: [
+            if (_isSubmitting)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            else
+              const Text(
+                'Simpan & Aktifkan Kolam',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            SizedBox(width: 8),
-            Icon(
-              Icons.arrow_forward,
-              color: Colors.white,
-              size: 16,
-            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
           ],
         ),
       ),
@@ -664,6 +673,62 @@ class _SellerAddKolamScreenState extends State<SellerAddKolamScreen> {
           _estimasiPanen = picked;
         }
       });
+    }
+  }
+
+  Future<void> _submitKolam() async {
+    final kodeKolam = _namaKolamController.text.trim();
+    final kapasitas = int.tryParse(_kapasitasController.text.trim());
+
+    if (kodeKolam.isEmpty || kapasitas == null || kapasitas <= 0) {
+      AppSnackBar.showError(
+        context,
+        message: 'Nama kolam dan kapasitas wajib diisi dengan benar.',
+      );
+      return;
+    }
+
+    if (_tanggalTebar == null || _estimasiPanen == null) {
+      AppSnackBar.showError(
+        context,
+        message: 'Tanggal tebar dan estimasi panen wajib dipilih.',
+      );
+      return;
+    }
+
+    if (_estimasiPanen!.isBefore(_tanggalTebar!)) {
+      AppSnackBar.showError(
+        context,
+        message: 'Estimasi panen tidak boleh lebih awal dari tanggal tebar.',
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      await _pondService.createPond(
+        code: kodeKolam,
+        capacity: kapasitas,
+        fishType: _selectedJenisIkan,
+        startedAt: _tanggalTebar!,
+        estHarvestAt: _estimasiPanen!,
+      );
+
+      if (!mounted) return;
+      AppSnackBar.showSuccess(context, message: 'Kolam berhasil ditambahkan.');
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackBar.showError(context, message: e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 }

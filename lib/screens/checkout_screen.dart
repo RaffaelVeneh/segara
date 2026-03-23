@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../providers/app_providers.dart';
 import 'payment_confirmation_screen.dart';
 
-class CheckoutScreen extends StatefulWidget {
+class CheckoutScreen extends ConsumerStatefulWidget {
   final List<Map<String, dynamic>> cartItems;
   final int totalPrice;
 
@@ -12,23 +15,21 @@ class CheckoutScreen extends StatefulWidget {
   });
 
   @override
-  State<CheckoutScreen> createState() => _CheckoutScreenState();
+  ConsumerState<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends State<CheckoutScreen> {
+class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final TextEditingController _notesController = TextEditingController();
+  static const String _shippingAddress =
+      'Jl. Pantai Indah Kapuk No. 88, Cluster Ebony, Jakarta Utara, DKI Jakarta 14470';
 
   int get _subtotal => widget.totalPrice;
-  int get _shippingFee => 10000;
-  int get _serviceFee => 1000;
-  int get _discount => 5000;
-  int get _total => _subtotal + _shippingFee + _serviceFee - _discount;
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   @override
@@ -66,10 +67,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       const SizedBox(height: 24),
 
                       // Product items
-                      ...widget.cartItems.map((item) => Padding(
-                            padding: const EdgeInsets.only(bottom: 24),
-                            child: _buildProductItem(item),
-                          )),
+                      ...widget.cartItems.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: _buildProductItem(item),
+                        ),
+                      ),
 
                       // Notes field
                       _buildNotesField(),
@@ -85,75 +88,62 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
 
           // Bottom payment bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _buildBottomBar(),
-          ),
+          Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar()),
         ],
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(''),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            const Color(0xFFF0F7FA).withOpacity(0.3),
-            BlendMode.srcOver,
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(''),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              const Color(0xFFF0F7FA).withValues(alpha: 0.3),
+              BlendMode.srcOver,
+            ),
+          ),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [const Color(0xFFF0F7FA), Colors.white],
+          ),
+          border: const Border(
+            bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1),
           ),
         ),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFFF0F7FA),
-            Colors.white,
-          ],
-        ),
-        border: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFF1F5F9),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Back button
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(9999),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: const Icon(
-                Icons.arrow_back_ios,
-                size: 11,
-                color: Color(0xFF334155),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(9999),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.arrow_back_ios,
+                  size: 11,
+                  color: Color(0xFF334155),
+                ),
               ),
             ),
-          ),
-
-          // Title
-          const Text(
-            'Checkout',
-            style: TextStyle(
-              fontSize: 18,
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1E293B),
+            const Text(
+              'Checkout',
+              style: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Montserrat',
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1E293B),
+              ),
             ),
-          ),
-
-          // Placeholder for symmetry
-          const SizedBox(width: 32),
-        ],
+            const SizedBox(width: 32),
+          ],
+        ),
       ),
     );
   }
@@ -164,9 +154,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A0A3D62),
@@ -203,7 +191,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               InkWell(
                 onTap: () {
-                  // TODO: Navigate to address edit
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Fitur Edit Address akan segera hadir pada update berikutnya.',
+                      ),
+                      backgroundColor: Color(0xFF0077B6),
+                    ),
+                  );
                 },
                 child: const Text(
                   'Ubah',
@@ -237,9 +232,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 decoration: BoxDecoration(
                   color: const Color(0x0D0A3D62),
                   borderRadius: BorderRadius.circular(9999),
-                  border: Border.all(
-                    color: const Color(0x1A0A3D62),
-                  ),
+                  border: Border.all(color: const Color(0x1A0A3D62)),
                 ),
                 child: const Text(
                   'UTAMA',
@@ -288,14 +281,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFE2E8F0),
-              ),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
               image: DecorationImage(
-                image: NetworkImage('https://placehold.co/308x96/E2E8F0/94A3B8?text=Map'),
+                image: NetworkImage(
+                  'https://placehold.co/308x96/E2E8F0/94A3B8?text=Map',
+                ),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  const Color(0xFF0A3D62).withOpacity(0.05),
+                  const Color(0xFF0A3D62).withValues(alpha: 0.05),
                   BlendMode.overlay,
                 ),
               ),
@@ -339,9 +332,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A0A3D62),
@@ -360,9 +351,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFF1F5F9),
-              ),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
               boxShadow: const [
                 BoxShadow(
                   color: Color(0x0D000000),
@@ -443,9 +432,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A0A3D62),
@@ -456,11 +443,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.note_outlined,
-            size: 18,
-            color: Color(0xFF94A3B8),
-          ),
+          const Icon(Icons.note_outlined, size: 18, color: Color(0xFF94A3B8)),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -496,9 +479,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A0A3D62),
@@ -526,22 +507,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           const SizedBox(height: 12),
 
           // Shipping fee
-          _buildPaymentRow('Biaya Pengiriman', _shippingFee, false),
-          const SizedBox(height: 12),
-
-          // Service fee
-          _buildPaymentRow('Biaya Layanan', _serviceFee, false),
+          _buildPaymentRow('Biaya Pengiriman', 0, false),
           const SizedBox(height: 12),
 
           // Divider
-          Container(
-            height: 1,
-            color: const Color(0xFFCBD5E1),
-          ),
+          Container(height: 1, color: const Color(0xFFCBD5E1)),
           const SizedBox(height: 12),
 
-          // Promo/Discount
-          _buildPaymentRow('Promo', -_discount, true),
+          _buildPaymentRow('Kode Unik + Ongkir', 0, false),
           const SizedBox(height: 8),
 
           // Total
@@ -576,9 +549,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ],
               ),
               Text(
-                'Rp ${_formatPrice(_total)}',
+                'Dihitung backend',
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontFamily: 'Montserrat',
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF0A3D62),
@@ -605,14 +578,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ),
         Text(
-          isDiscount
+          amount == 0
+              ? 'Hitung di server'
+              : isDiscount
               ? '-Rp ${_formatPrice(amount.abs())}'
               : 'Rp ${_formatPrice(amount)}',
           style: TextStyle(
             fontSize: 14,
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.w600,
-            color: isDiscount ? const Color(0xFF82CD47) : const Color(0xFF0F172A),
+            color: isDiscount
+                ? const Color(0xFF82CD47)
+                : const Color(0xFF0F172A),
           ),
         ),
       ],
@@ -620,10 +597,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Widget _buildBottomBar() {
+    final flowState = ref.watch(orderFlowProvider);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: const [
           BoxShadow(
@@ -660,29 +639,59 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PaymentConfirmationScreen(
-                          totalAmount: _total,
-                          cartItems: widget.cartItems,
-                        ),
-                      ),
-                    );
-                    if (result == 'checkout_complete' && mounted) {
-                      Navigator.pop(context, 'checkout_complete');
-                    }
-                  },
+                  onTap: flowState.isSubmittingOrder
+                      ? null
+                      : () async {
+                          final createResult = await ref
+                              .read(orderFlowProvider.notifier)
+                              .submitOrder(
+                                cartItems: widget.cartItems,
+                                shippingAddress: _shippingAddress,
+                                notes: _notesController.text.trim(),
+                              );
+
+                          if (!mounted) return;
+
+                          if (createResult == null) {
+                            final errorMessage =
+                                ref.read(orderFlowProvider).errorMessage ??
+                                'Gagal membuat order. Silakan coba lagi.';
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(errorMessage),
+                                backgroundColor: const Color(0xFFB91C1C),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentConfirmationScreen(
+                                orderId: createResult.orderId,
+                                orderNumber: createResult.orderNumber,
+                                totalAmount: createResult.totalAmount,
+                                expiredAt: createResult.expiredAt,
+                                cartItems: widget.cartItems,
+                              ),
+                            ),
+                          );
+                          if (result == 'checkout_complete' && mounted) {
+                            Navigator.pop(context, 'checkout_complete');
+                          }
+                        },
                   borderRadius: BorderRadius.circular(16),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Bayar Sekarang',
-                          style: TextStyle(
+                        Text(
+                          flowState.isSubmittingOrder
+                              ? 'Memproses...'
+                              : 'Bayar Sekarang',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontFamily: 'Montserrat',
@@ -690,11 +699,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             letterSpacing: 0.4,
                           ),
                         ),
-                        const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        flowState.isSubmittingOrder
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                       ],
                     ),
                   ),

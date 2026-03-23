@@ -1,59 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/app_providers.dart';
+import '../utils/loading_widgets.dart';
 
-class SellerKolamScreen extends StatefulWidget {
+class SellerKolamScreen extends ConsumerStatefulWidget {
   const SellerKolamScreen({super.key});
 
   @override
-  State<SellerKolamScreen> createState() => _SellerKolamScreenState();
+  ConsumerState<SellerKolamScreen> createState() => _SellerKolamScreenState();
 }
 
-class _SellerKolamScreenState extends State<SellerKolamScreen> {
+class _SellerKolamScreenState extends ConsumerState<SellerKolamScreen> {
   String _selectedFilter = 'Semua';
-
-  final List<Map<String, dynamic>> _kolamList = [
-    {
-      'name': 'Kolam A1',
-      'status': 'Siap Panen',
-      'statusColor': const Color(0xFF34D399),
-      'statusBg': const Color(0xFFDCFCE7),
-      'statusTextColor': const Color(0xFF15803D),
-      'accentColor': const Color(0xFF34D399),
-      'fishData': [
-        {'type': 'Nila', 'progress': 0.98, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Bawal', 'progress': 0.98, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Lele', 'progress': 0.98, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-      ],
-    },
-    {
-      'name': 'Kolam B2',
-      'status': 'Pertumbuhan',
-      'statusColor': const Color(0xFF0EA5E9),
-      'statusBg': const Color(0xFFE0F2FE),
-      'statusTextColor': const Color(0xFF0B88CB),
-      'accentColor': const Color(0xFF0EA5E9),
-      'fishData': [
-        {'type': 'Nila', 'progress': 0.45, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Bawal', 'progress': 0.45, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Lele', 'progress': 0.45, 'tebar': '20 Feb 2023', 'est': '15 Mei 2023'},
-      ],
-    },
-    {
-      'name': 'Kolam C4',
-      'status': 'Pertumbuhan',
-      'statusColor': const Color(0xFF0EA5E9),
-      'statusBg': const Color(0xFFE0F2FE),
-      'statusTextColor': const Color(0xFF0B88CB),
-      'accentColor': const Color(0xFF0EA5E9),
-      'fishData': [
-        {'type': 'Nila', 'progress': 0.15, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Bawal', 'progress': 0.15, 'tebar': '12 Jan 2023', 'est': 'Besok'},
-        {'type': 'Lele', 'progress': 0.15, 'tebar': '20 Feb 2023', 'est': '15 Mei 2023'},
-      ],
-    },
-  ];
+  final int _currentPage = 1;
 
   @override
   Widget build(BuildContext context) {
+    final pondsAsyncValue = ref.watch(pondsProvider(_currentPage));
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
@@ -62,7 +26,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(),
+                _buildHeader(pondsAsyncValue),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
@@ -71,35 +35,47 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                       const SizedBox(height: 95),
                       _buildFilterChips(),
                       const SizedBox(height: 24),
-                      _buildSectionHeader(),
+                      _buildSectionHeader(pondsAsyncValue),
                       const SizedBox(height: 24),
-                      _buildKolamList(),
+                      pondsAsyncValue.when(
+                        data: (pondResponse) {
+                          if (pondResponse.data.isEmpty) {
+                            return EmptyStateWidget(
+                              title: 'Kolam Tidak Ditemukan',
+                              message: 'Belum ada kolam yang didaftarkan',
+                              icon: Icons.water_outlined,
+                            );
+                          }
+                          return _buildKolamList(pondResponse.data);
+                        },
+                        loading: () => const PondSkeletonLoader(itemCount: 3),
+                        error: (error, stack) => ErrorStateWidget(
+                          error: error.toString(),
+                          onRetry: () =>
+                              ref.refresh(pondsProvider(_currentPage)),
+                        ),
+                      ),
                       const SizedBox(height: 96),
                     ],
                   ),
                 ),
               ],
             ),
-            Positioned(
-              top: 300,
-              left: 20,
-              right: 20,
-              child: _buildSearchBar(),
-            ),
+            Positioned(top: 300, left: 20, right: 20, child: _buildSearchBar()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AsyncValue pondAsyncValue) {
+    int totalPonds = 0;
+    pondAsyncValue.whenData((data) {
+      totalPonds = data.total;
+    });
+
     return Container(
-      padding: const EdgeInsets.only(
-        top: 48,
-        bottom: 60,
-        left: 24,
-        right: 24,
-      ),
+      padding: const EdgeInsets.only(top: 48, bottom: 60, left: 24, right: 24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -112,7 +88,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
@@ -132,8 +108,8 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                   center: Alignment.center,
                   radius: 0.7,
                   colors: [
-                    Colors.white.withOpacity(0.1),
-                    Colors.white.withOpacity(0),
+                    Colors.white.withValues(alpha: 0.1),
+                    Colors.white.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -151,7 +127,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                       Text(
                         'SEGARA App',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0.35,
@@ -168,9 +144,9 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '260 Kolam Terpadu',
+                        '$totalPonds Kolam Terpadu',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                         ),
@@ -185,12 +161,12 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.4),
+                            color: Colors.white.withValues(alpha: 0.4),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 6,
                               offset: const Offset(0, 4),
                             ),
@@ -231,7 +207,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                     child: _buildStatCard(
                       icon: Icons.water_outlined,
                       label: 'AKTIF',
-                      value: '260',
+                      value: totalPonds.toString(),
                       unit: 'Kolam',
                     ),
                   ),
@@ -262,10 +238,10 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -278,20 +254,16 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 16,
-                ),
+                child: Icon(icon, color: Colors.white, size: 16),
               ),
               const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.6,
@@ -316,7 +288,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
               Text(
                 unit,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
@@ -338,7 +310,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 15,
                   offset: const Offset(0, 10),
                 ),
@@ -380,17 +352,13 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 15,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.tune,
-                color: Color(0xFF475569),
-                size: 18,
-              ),
+              child: const Icon(Icons.tune, color: Color(0xFF475569), size: 18),
             ),
             Positioned(
               right: 12,
@@ -441,12 +409,16 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                 color: isSelected ? const Color(0xFF0B88CB) : Colors.white,
                 borderRadius: BorderRadius.circular(9999),
                 border: Border.all(
-                  color: isSelected ? Colors.transparent : const Color(0xFFF1F5F9),
+                  color: isSelected
+                      ? Colors.transparent
+                      : const Color(0xFFF1F5F9),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isSelected ? 0.1 : 0.05),
+                    color: Colors.black.withValues(
+                      alpha: isSelected ? 0.1 : 0.05,
+                    ),
                     blurRadius: isSelected ? 6 : 2,
                     offset: Offset(0, isSelected ? 4 : 1),
                   ),
@@ -464,7 +436,9 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                         boxShadow: filter['label'] == 'Siap Panen'
                             ? [
                                 BoxShadow(
-                                  color: (filter['color'] as Color).withOpacity(0.6),
+                                  color: (filter['color'] as Color).withValues(
+                                    alpha: 0.6,
+                                  ),
                                   blurRadius: 8,
                                 ),
                               ]
@@ -476,7 +450,9 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                   Text(
                     filter['label'] as String,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : const Color(0xFF475569),
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF475569),
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -490,7 +466,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
     );
   }
 
-  Widget _buildSectionHeader() {
+  Widget _buildSectionHeader(AsyncValue pondAsyncValue) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
@@ -508,16 +484,23 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF0B88CB).withOpacity(0.1),
+              color: const Color(0xFF0B88CB).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(9999),
             ),
-            child: const Text(
-              'PRIORITAS PANEN',
-              style: TextStyle(
-                color: Color(0xFF0B88CB),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.25,
+            child: pondAsyncValue.maybeWhen(
+              data: (data) => Text(
+                'PRIORITAS PANEN',
+                style: const TextStyle(
+                  color: Color(0xFF0B88CB),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.25,
+                ),
+              ),
+              orElse: () => const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(strokeWidth: 1),
               ),
             ),
           ),
@@ -526,16 +509,21 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
     );
   }
 
-  Widget _buildKolamList() {
+  Widget _buildKolamList(List ponds) {
     return Column(
-      children: _kolamList.map((kolam) => Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: _buildKolamCard(kolam),
-      )).toList(),
+      children: ponds.map((pond) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: _buildKolamCard(pond),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildKolamCard(Map<String, dynamic> kolam) {
+  Widget _buildKolamCard(dynamic pond) {
+    // Map Pond model to card display format
+    final statusMap = _getStatusFromPond(pond);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -544,7 +532,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 15,
             offset: const Offset(0, 10),
           ),
@@ -565,8 +553,8 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                   colors: [
-                    (kolam['accentColor'] as Color).withOpacity(0.1),
-                    (kolam['accentColor'] as Color).withOpacity(0),
+                    statusMap['accentColor'].withValues(alpha: 0.1),
+                    statusMap['accentColor'].withValues(alpha: 0),
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
@@ -602,7 +590,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        kolam['name'] as String,
+                        pond.name,
                         style: const TextStyle(
                           color: Color(0xFF1E293B),
                           fontSize: 16,
@@ -617,10 +605,10 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: kolam['statusBg'] as Color,
+                      color: statusMap['statusBg'],
                       borderRadius: BorderRadius.circular(9999),
                       border: Border.all(
-                        color: kolam['statusBg'] as Color,
+                        color: statusMap['statusBg'],
                         width: 1,
                       ),
                     ),
@@ -632,8 +620,9 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: (kolam['statusColor'] as Color)
-                                    .withOpacity(0.75),
+                                color: statusMap['statusColor'].withValues(
+                                  alpha: 0.75,
+                                ),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -641,7 +630,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: kolam['statusColor'] as Color,
+                                color: statusMap['statusColor'],
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -649,9 +638,9 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          (kolam['status'] as String).toUpperCase(),
+                          statusMap['status'].toUpperCase(),
                           style: TextStyle(
-                            color: kolam['statusTextColor'] as Color,
+                            color: statusMap['statusTextColor'],
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.25,
@@ -675,9 +664,11 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...(kolam['fishData'] as List<Map<String, dynamic>>)
-                      .map((fish) => _buildFishProgress(fish, kolam['accentColor'] as Color))
-                      .toList(),
+                  _buildFishProgress(
+                    'Ikan Utama',
+                    pond.temperaturePercentage ?? 0.45,
+                    statusMap['accentColor'],
+                  ),
                 ],
               ),
             ],
@@ -687,14 +678,39 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
     );
   }
 
-  Widget _buildFishProgress(Map<String, dynamic> fish, Color accentColor) {
-    final progress = fish['progress'] as double;
+  Map<String, dynamic> _getStatusFromPond(dynamic pond) {
+    // Determine status based on pond data
+    final phLevel = pond.phLevel ?? 0.0;
+    String status = 'Pertumbuhan';
+    Color statusColor = const Color(0xFF0EA5E9);
+    Color statusBg = const Color(0xFFE0F2FE);
+    Color statusTextColor = const Color(0xFF0B88CB);
+    Color accentColor = const Color(0xFF0EA5E9);
+
+    if (phLevel > 0.9) {
+      status = 'Siap Panen';
+      statusColor = const Color(0xFF34D399);
+      statusBg = const Color(0xFFDCFCE7);
+      statusTextColor = const Color(0xFF15803D);
+      accentColor = const Color(0xFF34D399);
+    }
+
+    return {
+      'status': status,
+      'statusColor': statusColor,
+      'statusBg': statusBg,
+      'statusTextColor': statusTextColor,
+      'accentColor': accentColor,
+    };
+  }
+
+  Widget _buildFishProgress(String type, double progress, Color accentColor) {
     final isHighProgress = progress >= 0.9;
-    
+
     Color progressColor;
     Color progressGradientStart;
     Color progressGradientEnd;
-    
+
     if (isHighProgress) {
       progressColor = const Color(0xFF34D399);
       progressGradientStart = const Color(0xFF4ADE80);
@@ -719,7 +735,7 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
               SizedBox(
                 width: 40,
                 child: Text(
-                  fish['type'] as String,
+                  type,
                   style: const TextStyle(
                     color: Color(0xFF94A3B8),
                     fontSize: 11,
@@ -745,23 +761,14 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                           width: constraints.maxWidth * progress,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [progressGradientStart, progressGradientEnd],
+                              colors: [
+                                progressGradientStart,
+                                progressGradientEnd,
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(9999),
-                            
                           ),
                         ),
-                        if (progress < 1.0 && progress > 0.05)
-                          Positioned(
-                            left: (constraints.maxWidth * progress) - 8,
-                            top: -5,
-                            child: Container(
-                              width: 16,
-                              height: 22,
-                              decoration: BoxDecoration(
-                              ),
-                            ),
-                          ),
                       ],
                     );
                   },
@@ -780,31 +787,6 @@ class _SellerKolamScreenState extends State<SellerKolamScreen> {
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.only(left: 50),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Tebar: ${fish['tebar']}',
-                  style: const TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  'Est: ${fish['est']}',
-                  style: const TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

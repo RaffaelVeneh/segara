@@ -4,10 +4,7 @@ import 'login_screen.dart';
 class SettingsScreen extends StatefulWidget {
   final String role;
 
-  const SettingsScreen({
-    super.key,
-    required this.role,
-  });
+  const SettingsScreen({super.key, required this.role});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -27,7 +24,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF111827), size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Color(0xFF111827),
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -40,10 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: const Color(0xFFF3F4F6),
-          ),
+          child: Container(height: 1, color: const Color(0xFFF3F4F6)),
         ),
       ),
       body: SingleChildScrollView(
@@ -166,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -210,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF0D9488),
+            activeThumbColor: const Color(0xFF0D9488),
             activeTrackColor: const Color(0xFFCCFBF1),
             inactiveThumbColor: const Color(0xFFD1D5DB),
             inactiveTrackColor: const Color(0xFFF3F4F6),
@@ -236,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -277,11 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Color(0xFFD1D5DB),
-              size: 20,
-            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB), size: 20),
           ],
         ),
       ),
@@ -305,7 +299,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           border: Border.all(color: const Color(0xFFFEE2E2), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -346,11 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Color(0xFFFCA5A5),
-              size: 20,
-            ),
+            const Icon(Icons.chevron_right, color: Color(0xFFFCA5A5), size: 20),
           ],
         ),
       ),
@@ -394,10 +384,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(width: 10),
             const Text(
               'SEGARA',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
           ],
         ),
@@ -407,18 +394,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text(
               'Marketplace Hasil Laut Terpercaya',
-              style: TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Color(0xFF6B7280), fontSize: 14),
             ),
             SizedBox(height: 16),
             Text(
               'Versi 1.0.0 (Marketplace)',
-              style: TextStyle(
-                color: Color(0xFF9CA3AF),
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 12),
             ),
             SizedBox(height: 4),
             Text(
@@ -458,11 +439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         content: const Text(
           'Apakah Anda yakin ingin menghapus akun? Semua data akan dihapus secara permanen dan tidak dapat dikembalikan.',
-          style: TextStyle(
-            color: Color(0xFF4B5563),
-            fontSize: 14,
-            height: 1.5,
-          ),
+          style: TextStyle(color: Color(0xFF4B5563), fontSize: 14, height: 1.5),
         ),
         actions: [
           TextButton(
@@ -477,9 +454,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(context);
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(role: widget.role),
-                ),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
               );
             },

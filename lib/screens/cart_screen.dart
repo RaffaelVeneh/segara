@@ -234,7 +234,7 @@ class _CartScreenState extends State<CartScreen> {
     return Container(
       height: 128,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC).withOpacity(0.8),
+        color: const Color(0xFFF8FAFC).withValues(alpha: 0.8),
       ),
       child: Stack(
         children: [
@@ -246,7 +246,7 @@ class _CartScreenState extends State<CartScreen> {
             child: Container(
               height: 103,
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2FE).withOpacity(0.5),
+                color: const Color(0xFFE0F2FE).withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -459,7 +459,7 @@ class _CartScreenState extends State<CartScreen> {
         boxShadow: [
           BoxShadow(
             color: isSelected
-                ? const Color(0xFF0F83BD).withOpacity(0.15)
+                ? const Color(0xFF0F83BD).withValues(alpha: 0.15)
                 : const Color(0x0D000000),
             blurRadius: 40,
             offset: const Offset(0, 10),
@@ -544,8 +544,8 @@ class _CartScreenState extends State<CartScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.black.withOpacity(0),
-                            Colors.black.withOpacity(0.2),
+                            Colors.black.withValues(alpha: 0),
+                            Colors.black.withValues(alpha: 0.2),
                           ],
                         ),
                       ),
@@ -654,7 +654,7 @@ class _CartScreenState extends State<CartScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
+                                      color: Colors.black.withValues(alpha: 0.06),
                                       blurRadius: 4,
                                       offset: const Offset(0, 1),
                                     ),
@@ -719,7 +719,7 @@ class _CartScreenState extends State<CartScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF0F83BD).withOpacity(0.3),
+                                      color: const Color(0xFF0F83BD).withValues(alpha: 0.3),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -824,7 +824,7 @@ class _CartScreenState extends State<CartScreen> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: 0.8),
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(32),
           ),
@@ -992,7 +992,7 @@ class _CartScreenState extends State<CartScreen> {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
