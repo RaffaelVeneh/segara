@@ -148,9 +148,16 @@ class AuthNotifier extends Notifier<AuthState> {
         final prefs = prefsAsync.whenData((p) => p).value;
         final userName = prefs?.getString(AppConstants.userNameKey) ?? '';
         final role = prefs?.getString(AppConstants.userRoleKey) ?? '';
+        final whatsapp = prefs?.getString(AppConstants.userPhoneKey) ?? '';
         state = state.copyWith(
           isLoggedIn: true,
-          user: User(id: 0, name: userName, email: '', phone: '', role: role),
+          user: User(
+            id: '',
+            name: userName,
+            email: '',
+            whatsapp: whatsapp,
+            role: role,
+          ),
           token: token,
         );
       }

@@ -1,8 +1,8 @@
 class User {
-  final int id;
+  final String id;
   final String name;
   final String email;
-  final String phone;
+  final String whatsapp;
   final String role;
   final String? profilePicture;
   final String? address;
@@ -12,18 +12,20 @@ class User {
     required this.id,
     required this.name,
     required this.email,
-    required this.phone,
+    required this.whatsapp,
     required this.role,
     this.profilePicture,
     this.address,
     this.isVerified = false,
   });
 
+  String get phone => whatsapp;
+
   User copyWith({
-    int? id,
+    String? id,
     String? name,
     String? email,
-    String? phone,
+    String? whatsapp,
     String? role,
     String? profilePicture,
     String? address,
@@ -33,7 +35,7 @@ class User {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
-      phone: phone ?? this.phone,
+      whatsapp: whatsapp ?? this.whatsapp,
       role: role ?? this.role,
       profilePicture: profilePicture ?? this.profilePicture,
       address: address ?? this.address,
@@ -43,13 +45,14 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: (json['id'] as num).toInt(),
-      name: json['name'] as String,
-      email: json['email'] as String,
-      phone: json['phone'] as String,
-      role: json['role'] as String,
-      profilePicture: json['profilePicture'] as String?,
-      address: json['address'] as String?,
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      whatsapp: (json['whatsapp'] ?? json['phone'] ?? '').toString(),
+      role: (json['role'] ?? '').toString(),
+      profilePicture: (json['profilePicture'] ?? json['profile_picture'])
+          ?.toString(),
+      address: (json['address'] ?? json['alamat'])?.toString(),
       isVerified: json['isVerified'] as bool? ?? false,
     );
   }
@@ -59,7 +62,7 @@ class User {
       'id': id,
       'name': name,
       'email': email,
-      'phone': phone,
+      'whatsapp': whatsapp,
       'role': role,
       'profilePicture': profilePicture,
       'address': address,
@@ -69,7 +72,7 @@ class User {
 
   @override
   String toString() =>
-      'User(id: $id, name: $name, email: $email, phone: $phone, role: $role)';
+      'User(id: $id, name: $name, email: $email, whatsapp: $whatsapp, role: $role)';
 }
 
 class AuthResponse {

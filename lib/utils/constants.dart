@@ -8,7 +8,7 @@ class AppConstants {
 
   // ⚙️ UBAH INI SESUAI SERVER LARAVEL ANDA:
   static const String baseUrl =
-      'http://192.168.1.29:8000/api'; // Ubah localhost jika perlu
+      'https://api-fish.alvito.dev/api'; // Ubah localhost jika perlu
 
   // API Endpoints
   static const String authSendOtp = '/auth/send-otp';
