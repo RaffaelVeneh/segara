@@ -8,13 +8,32 @@ import 'order_detail_screen.dart';
 
 class OrderTrackingScreen extends ConsumerWidget {
   final String orderId;
+  final String? orderNumber;
   final List<Map<String, dynamic>> orderItems;
 
   const OrderTrackingScreen({
     super.key,
     required this.orderId,
+    this.orderNumber,
     required this.orderItems,
   });
+
+  String get _displayOrderNumber {
+    if (orderNumber != null && orderNumber!.startsWith('ORD-')) {
+      return orderNumber!;
+    }
+
+    if (orderId.startsWith('ORD-')) {
+      return orderId;
+    }
+
+    final compact = orderId.replaceAll('-', '').toUpperCase();
+    if (compact.isEmpty) {
+      return 'ORD-UNKNOWN';
+    }
+    final suffix = compact.length >= 6 ? compact.substring(0, 6) : compact;
+    return 'ORD-$suffix';
+  }
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
@@ -304,7 +323,7 @@ class OrderTrackingScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                orderId,
+                _displayOrderNumber,
                 style: const TextStyle(
                   fontSize: 18,
                   fontFamily: 'Montserrat',
@@ -315,7 +334,7 @@ class OrderTrackingScreen extends ConsumerWidget {
             ],
           ),
           InkWell(
-            onTap: () => _copyToClipboard(context, orderId),
+            onTap: () => _copyToClipboard(context, _displayOrderNumber),
             borderRadius: BorderRadius.circular(9999),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -517,6 +536,7 @@ class OrderTrackingScreen extends ConsumerWidget {
                 MaterialPageRoute(
                   builder: (context) => OrderDetailScreen(
                     orderId: orderId,
+                    orderNumber: _displayOrderNumber,
                     orderItems: orderItems,
                   ),
                 ),

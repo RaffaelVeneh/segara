@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 
 import '../providers/app_providers.dart';
-import 'order_tracking_screen.dart';
 import 'my_orders_screen.dart';
 
 class PaymentConfirmationScreen extends ConsumerStatefulWidget {
@@ -37,6 +36,18 @@ class _PaymentConfirmationScreenState
   int _remainingSeconds = 0;
   final ImagePicker _imagePicker = ImagePicker();
   File? _paymentProofFile;
+  static const int _shippingFee = 15000;
+  static const int _serviceFee = 2000;
+
+  int get _subtotal {
+    return widget.cartItems.fold<int>(0, (sum, item) {
+      final price = (item['price'] as num?)?.toInt() ?? 0;
+      final quantity = (item['quantity'] as num?)?.toInt() ?? 0;
+      return sum + (price * quantity);
+    });
+  }
+
+  int get _dummyTotal => _subtotal + _shippingFee + _serviceFee;
 
   @override
   void initState() {
@@ -651,47 +662,140 @@ class _PaymentConfirmationScreenState
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.receipt_long_outlined,
-                      size: 15,
-                      color: Color(0xFF0077B8),
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEFF6FF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          size: 15,
+                          color: Color(0xFF0077B8),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Rincian Pesanan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF334155),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  const Text(
-                    'Rincian Pesanan',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF334155),
-                    ),
+                  Icon(
+                    _isOrderDetailsExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: const Color(0xFF94A3B8),
                   ),
                 ],
               ),
-              Icon(
-                _isOrderDetailsExpanded
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
-                size: 20,
-                color: const Color(0xFF94A3B8),
-              ),
+              if (_isOrderDetailsExpanded) ...[
+                const SizedBox(height: 14),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 12),
+                Text(
+                  'Order: ${widget.orderNumber}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ...widget.cartItems.map((item) {
+                  final quantity = (item['quantity'] as num?)?.toInt() ?? 0;
+                  final price = (item['price'] as num?)?.toInt() ?? 0;
+                  final itemTotal = quantity * price;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${item['name'] ?? 'Produk'} x$quantity',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF475569),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Rp ${_formatPrice(itemTotal)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 10),
+                _buildSummaryRow('Subtotal', _subtotal),
+                const SizedBox(height: 6),
+                _buildSummaryRow('Ongkir', _shippingFee),
+                const SizedBox(height: 6),
+                _buildSummaryRow('Biaya Layanan', _serviceFee),
+                const SizedBox(height: 8),
+                _buildSummaryRow('Total', _dummyTotal, isTotal: true),
+              ],
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, int amount, {bool isTotal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'Montserrat',
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+            color: const Color(0xFF475569),
+          ),
+        ),
+        Text(
+          'Rp ${_formatPrice(amount)}',
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'Montserrat',
+            fontWeight: isTotal ? FontWeight.w800 : FontWeight.w600,
+            color: isTotal ? const Color(0xFF0F172A) : const Color(0xFF1E293B),
+          ),
+        ),
+      ],
     );
   }
 
@@ -962,14 +1066,12 @@ class _PaymentConfirmationScreenState
 
                           CartStorage.clear();
 
-                          Navigator.pushReplacement(
+                          Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => OrderTrackingScreen(
-                                orderId: widget.orderId,
-                                orderItems: widget.cartItems,
-                              ),
+                              builder: (context) => const MyOrdersScreen(),
                             ),
+                            (route) => false,
                           );
                         },
                   borderRadius: BorderRadius.circular(20),

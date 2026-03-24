@@ -22,14 +22,48 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final TextEditingController _notesController = TextEditingController();
   static const String _shippingAddress =
       'Jl. Pantai Indah Kapuk No. 88, Cluster Ebony, Jakarta Utara, DKI Jakarta 14470';
+  static const int _shippingFee = 15000;
+  static const int _serviceFee = 2000;
 
   int get _subtotal => widget.totalPrice;
+  int get _dummyTotal => _subtotal + _shippingFee + _serviceFee;
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]}.',
     );
+  }
+
+  String? _formatBookingDate(dynamic bookingDate) {
+    DateTime? parsedDate;
+
+    if (bookingDate is DateTime) {
+      parsedDate = bookingDate;
+    } else if (bookingDate is String) {
+      parsedDate = DateTime.tryParse(bookingDate);
+    }
+
+    if (parsedDate == null) {
+      return null;
+    }
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+
+    return '${parsedDate.day} ${monthNames[parsedDate.month - 1]} ${parsedDate.year}';
   }
 
   @override
@@ -327,6 +361,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildProductItem(Map<String, dynamic> item) {
+    final bookingDateLabel = _formatBookingDate(item['bookingDate']);
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -408,6 +444,19 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     height: 1.33,
                   ),
                 ),
+                if (bookingDateLabel != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Jadwal Panen: $bookingDateLabel',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                      height: 1.33,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Text(
                   'Rp ${_formatPrice(item['price'] * item['quantity'])}',
@@ -507,15 +556,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           const SizedBox(height: 12),
 
           // Shipping fee
-          _buildPaymentRow('Biaya Pengiriman', 0, false),
+          _buildPaymentRow('Biaya Pengiriman', _shippingFee, false),
+          const SizedBox(height: 12),
+
+          _buildPaymentRow('Biaya Layanan', _serviceFee, false),
           const SizedBox(height: 12),
 
           // Divider
           Container(height: 1, color: const Color(0xFFCBD5E1)),
           const SizedBox(height: 12),
-
-          _buildPaymentRow('Kode Unik + Ongkir', 0, false),
-          const SizedBox(height: 8),
 
           // Total
           Row(
@@ -549,7 +598,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ],
               ),
               Text(
-                'Dihitung backend',
+                'Rp ${_formatPrice(_dummyTotal)}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontFamily: 'Montserrat',
@@ -578,9 +627,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
         ),
         Text(
-          amount == 0
-              ? 'Hitung di server'
-              : isDiscount
+          isDiscount
               ? '-Rp ${_formatPrice(amount.abs())}'
               : 'Rp ${_formatPrice(amount)}',
           style: TextStyle(

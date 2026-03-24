@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class BookingScreen extends StatefulWidget {
   final Map<String, dynamic> product;
 
-  const BookingScreen({
-    super.key,
-    required this.product,
-  });
+  const BookingScreen({super.key, required this.product});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -31,9 +28,9 @@ class _BookingScreenState extends State<BookingScreen> {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   @override
@@ -150,16 +147,23 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
 
               // Title
-              const Text(
-                'Jadwal Panen Organik',
-                style: TextStyle(
-                  color: Color(0xFF1E293B),
-                  fontSize: 18,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.45,
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Jadwal Panen Organik',
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Color(0xFF1E293B),
+                    fontSize: 18,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.45,
+                  ),
                 ),
               ),
+              const SizedBox(width: 12),
 
               // Info button
               Container(
@@ -482,11 +486,13 @@ class _BookingScreenState extends State<BookingScreen> {
     }
 
     return GestureDetector(
-      onTap: isDisabled ? null : () {
-        setState(() {
-          _selectedDay = date;
-        });
-      },
+      onTap: isDisabled
+          ? null
+          : () {
+              setState(() {
+                _selectedDay = date;
+              });
+            },
       child: SizedBox(
         width: 40,
         height: 52,
@@ -510,10 +516,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   border: Border.all(color: Colors.white, width: 2),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x663282B8),
-                      blurRadius: 20,
-                    ),
+                    BoxShadow(color: Color(0x663282B8), blurRadius: 20),
                   ],
                 ),
                 child: Stack(
@@ -567,9 +570,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     ? BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: const Color(0xFFF3F4F6),
-                        ),
+                        border: Border.all(color: const Color(0xFFF3F4F6)),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x0D000000),
@@ -623,23 +624,36 @@ class _BookingScreenState extends State<BookingScreen> {
       spacing: 16,
       runSpacing: 16,
       children: [
-        _buildLegendItem('Pilihan Anda', const Color(0xFF3282B8), isPrimary: true),
-        _buildLegendItem('Panen Optimal', const Color(0xFF5DA465), isGreen: true),
+        _buildLegendItem(
+          'Pilihan Anda',
+          const Color(0xFF3282B8),
+          isPrimary: true,
+        ),
+        _buildLegendItem(
+          'Panen Optimal',
+          const Color(0xFF5DA465),
+          isGreen: true,
+        ),
         _buildLegendItem('Stok Terbatas', const Color(0xFFEAB308)),
         _buildLegendItem('Belum Siap', const Color(0xFFD1D5DB)),
       ],
     );
   }
 
-  Widget _buildLegendItem(String label, Color color, {bool isPrimary = false, bool isGreen = false}) {
+  Widget _buildLegendItem(
+    String label,
+    Color color, {
+    bool isPrimary = false,
+    bool isGreen = false,
+  }) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: isPrimary
             ? const Color(0xFFF8FAFC)
             : isGreen
-                ? const Color(0x80E8F5E9)
-                : const Color(0xFFF8FAFC),
+            ? const Color(0x80E8F5E9)
+            : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -669,7 +683,9 @@ class _BookingScreenState extends State<BookingScreen> {
               color: isGreen ? color : const Color(0xFF64748B),
               fontSize: 12,
               fontFamily: 'Montserrat',
-              fontWeight: isPrimary || isGreen ? FontWeight.w600 : FontWeight.w500,
+              fontWeight: isPrimary || isGreen
+                  ? FontWeight.w600
+                  : FontWeight.w500,
               height: 1.33,
             ),
           ),
@@ -684,9 +700,7 @@ class _BookingScreenState extends State<BookingScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0x66E2E8F0),
-        ),
+        border: Border.all(color: const Color(0x66E2E8F0)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x14004B78),
@@ -701,11 +715,7 @@ class _BookingScreenState extends State<BookingScreen> {
           // Header
           Row(
             children: const [
-              Icon(
-                Icons.calendar_today,
-                size: 15,
-                color: Color(0xFF0077B8),
-              ),
+              Icon(Icons.calendar_today, size: 15, color: Color(0xFF0077B8)),
               SizedBox(width: 8),
               Text(
                 'DETAIL SLOT PANEN',
@@ -959,14 +969,8 @@ class _BookingScreenState extends State<BookingScreen> {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.9),
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(32),
-          ),
-          border: const Border(
-            top: BorderSide(
-              color: Color(0x80FFFFFF),
-            ),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          border: const Border(top: BorderSide(color: Color(0x80FFFFFF))),
           boxShadow: const [
             BoxShadow(
               color: Color(0x330077B8),
@@ -982,131 +986,142 @@ class _BookingScreenState extends State<BookingScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Quantity controls
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Jumlah Kilogram',
-                        style: TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 12,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500,
-                          height: 1.33,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFF3282B8),
-                            width: 1.5,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Jumlah Kilogram',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 12,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            height: 1.33,
                           ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0D000000),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Minus button
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _updateQuantity(-1),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(14),
-                                  bottomLeft: Radius.circular(14),
+                        const SizedBox(height: 8),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFF3282B8),
+                                width: 1.5,
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x0D000000),
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
                                 ),
-                                child: Container(
-                                  width: 44,
-                                  height: 44,
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.remove,
-                                    color: Color(0xFF3282B8),
-                                    size: 20,
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () => _updateQuantity(-1),
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(14),
+                                      bottomLeft: Radius.circular(14),
+                                    ),
+                                    child: Container(
+                                      width: 44,
+                                      height: 44,
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.remove,
+                                        color: Color(0xFF3282B8),
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            // Quantity
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                '$_quantity kg',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                            ),
-                            // Plus button
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: () => _updateQuantity(1),
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(14),
-                                  bottomRight: Radius.circular(14),
-                                ),
-                                child: Container(
-                                  width: 44,
-                                  height: 44,
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Color(0xFF3282B8),
-                                    size: 20,
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    '$_quantity kg',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1E293B),
+                                    ),
                                   ),
                                 ),
-                              ),
+                                Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () => _updateQuantity(1),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(14),
+                                      bottomRight: Radius.circular(14),
+                                    ),
+                                    child: Container(
+                                      width: 44,
+                                      height: 44,
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.add,
+                                        color: Color(0xFF3282B8),
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
+                  const SizedBox(width: 12),
+
                   // Total price
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        'Total Harga',
-                        style: TextStyle(
-                          color: Color(0xFF64748B),
-                          fontSize: 12,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w500,
-                          height: 1.33,
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text(
+                          'Total Harga',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 12,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w500,
+                            height: 1.33,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Rp ${_formatPrice(_totalPrice)}',
-                        style: const TextStyle(
-                          color: Color(0xFF1E293B),
-                          fontSize: 24,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
-                          height: 1.33,
+                        const SizedBox(height: 4),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Rp ${_formatPrice(_totalPrice)}',
+                            style: const TextStyle(
+                              color: Color(0xFF1E293B),
+                              fontSize: 24,
+                              fontFamily: 'Montserrat',
+                              fontWeight: FontWeight.w700,
+                              height: 1.33,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -1155,14 +1170,16 @@ class _BookingScreenState extends State<BookingScreen> {
                       'bookingDate': DateTime(2026, 3, _selectedDay),
                       'reminderEnabled': _reminderEnabled,
                     };
-                    
+
                     // Return to previous screen with booking data
                     Navigator.pop(context, bookingItem);
-                    
+
                     // Show success message
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${widget.product['name']} berhasil ditambahkan ke keranjang'),
+                        content: Text(
+                          '${widget.product['name']} berhasil ditambahkan ke keranjang',
+                        ),
                         backgroundColor: const Color(0xFF10B981),
                         duration: const Duration(seconds: 2),
                       ),

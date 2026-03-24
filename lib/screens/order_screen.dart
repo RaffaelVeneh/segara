@@ -5,16 +5,14 @@ import 'order_tracking_screen.dart';
 class OrderScreen extends StatefulWidget {
   final String role;
 
-  const OrderScreen({
-    super.key,
-    required this.role,
-  });
+  const OrderScreen({super.key, required this.role});
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
 }
 
-class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class _OrderScreenState extends State<OrderScreen>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
 
   @override
@@ -96,13 +94,13 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
 
   Widget _buildOrderList(String status) {
     final allOrders = OrdersStorage.getAllOrders();
-    
-    final filteredOrders = status == 'Semua' 
-        ? allOrders 
+
+    final filteredOrders = status == 'Semua'
+        ? allOrders
         : allOrders.where((order) {
             final orderStatus = order['status'];
             if (orderStatus == null) return false;
-            
+
             if (status == 'Proses') {
               return orderStatus == 'Sedang Diproses';
             } else if (status == 'Dikirim') {
@@ -136,8 +134,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
             ),
             const SizedBox(height: 8),
             Text(
-              widget.role == 'buyer' 
-                  ? 'Yuk mulai belanja ikan segar!' 
+              widget.role == 'buyer'
+                  ? 'Yuk mulai belanja ikan segar!'
                   : 'Belum ada pesanan masuk',
               style: const TextStyle(
                 fontSize: 14,
@@ -169,9 +167,29 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
+  String _getDisplayOrderNumber(Map<String, dynamic> order) {
+    final rawOrderNumber = order['orderNumber']?.toString();
+    if (rawOrderNumber != null && rawOrderNumber.startsWith('ORD-')) {
+      return rawOrderNumber;
+    }
+
+    final fallback = order['orderId']?.toString() ?? '';
+    if (fallback.startsWith('ORD-')) {
+      return fallback;
+    }
+
+    if (fallback.isEmpty) {
+      return 'ORD-UNKNOWN';
+    }
+
+    final compact = fallback.replaceAll('-', '').toUpperCase();
+    final suffix = compact.length >= 6 ? compact.substring(0, 6) : compact;
+    return 'ORD-$suffix';
   }
 
   Color _getStatusColor(String status) {
@@ -207,11 +225,11 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
   Widget _buildOrderCard(Map<String, dynamic> order) {
     // Safe casting with null checks
     final itemsData = order['items'];
-    
+
     if (itemsData == null || itemsData is! List) {
       return const SizedBox.shrink();
     }
-    
+
     // Safely convert to List<Map<String, dynamic>>, filtering out null/invalid entries
     final items = <Map<String, dynamic>>[];
     try {
@@ -223,30 +241,28 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
     } catch (e) {
       return const SizedBox.shrink();
     }
-    
+
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    
-    final totalItems = items.fold<int>(
-      0, 
-      (sum, item) {
-        final quantity = item['quantity'];
-        if (quantity is int) return sum + quantity;
-        if (quantity is double) return sum + quantity.toInt();
-        return sum;
-      },
-    );
-    
+
+    final totalItems = items.fold<int>(0, (sum, item) {
+      final quantity = item['quantity'];
+      if (quantity is int) return sum + quantity;
+      if (quantity is double) return sum + quantity.toInt();
+      return sum;
+    });
+
     final orderId = order['orderId']?.toString() ?? 'Unknown';
+    final orderNumber = _getDisplayOrderNumber(order);
     final status = order['status']?.toString() ?? 'Unknown';
-    
+
     final totalPriceData = order['totalPrice'];
-    final totalPrice = (totalPriceData is int) 
-        ? totalPriceData 
-        : (totalPriceData is double) 
-            ? totalPriceData.toInt() 
-            : 0;
+    final totalPrice = (totalPriceData is int)
+        ? totalPriceData
+        : (totalPriceData is double)
+        ? totalPriceData.toInt()
+        : 0;
 
     return InkWell(
       onTap: () {
@@ -255,6 +271,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
           MaterialPageRoute(
             builder: (context) => OrderTrackingScreen(
               orderId: orderId,
+              orderNumber: orderNumber,
               orderItems: items,
             ),
           ),
@@ -266,9 +283,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0D000000),
@@ -282,56 +297,70 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
           children: [
             // Header
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'ORDER ID',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF94A3B8),
-                        letterSpacing: 0.5,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'ORDER ID',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF94A3B8),
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      orderId,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B),
+                      const SizedBox(height: 2),
+                      Text(
+                        orderNumber,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1E293B),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getStatusBgColor(status),
-                    borderRadius: BorderRadius.circular(9999),
-                    border: Border.all(
-                      color: _getStatusColor(status).withValues(alpha: 0.3),
-                    ),
+                    ],
                   ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w700,
-                      color: _getStatusColor(status),
-                      letterSpacing: 0.3,
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusBgColor(status),
+                        borderRadius: BorderRadius.circular(9999),
+                        border: Border.all(
+                          color: _getStatusColor(status).withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        status,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          color: _getStatusColor(status),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
             const Divider(height: 1, color: Color(0xFFF1F5F9)),
             const SizedBox(height: 16),
@@ -341,28 +370,32 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
               children: [
                 // Item images
                 SizedBox(
-                  height: 48,
-                  width: items.length > 3 ? 156 : (items.length > 1 ? items.length * 48.0 + (items.length - 1) * 12 : 48),
+                  height: 40,
+                  width: items.length > 3
+                      ? 104
+                      : (items.length > 1 ? items.length * 28.0 + 12 : 40),
                   child: Stack(
                     children: () {
                       // Filter valid items and build positioned widgets
                       final List<Widget> widgets = [];
                       final displayCount = items.length > 3 ? 3 : items.length;
-                      
+
                       for (int i = 0; i < displayCount; i++) {
                         final item = items[i];
-                        
+
                         final imagePath = item['image'];
-                        if (imagePath == null || imagePath.toString().isEmpty) continue;
-                        
+                        if (imagePath == null || imagePath.toString().isEmpty) {
+                          continue;
+                        }
+
                         widgets.add(
                           Positioned(
-                            left: i * 36.0,
+                            left: i * 24.0,
                             child: Container(
-                              width: 48,
-                              height: 48,
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
                                   color: Colors.white,
                                   width: 2,
@@ -376,7 +409,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                                 ],
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(8),
                                 child: Image.asset(
                                   imagePath.toString(),
                                   fit: BoxFit.cover,
@@ -396,15 +429,15 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                           ),
                         );
                       }
-                      
+
                       // If no valid images, show placeholder
                       if (widgets.isEmpty) {
                         widgets.add(
                           Container(
-                            width: 48,
-                            height: 48,
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                               color: const Color(0xFFF1F5F9),
                             ),
                             child: const Icon(
@@ -415,12 +448,12 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                           ),
                         );
                       }
-                      
+
                       return widgets;
                     }(),
                   ),
                 ),
-                SizedBox(width: items.length > 1 ? (items.length > 3 ? 108 : items.length * 36.0 + 12) : 60),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,17 +467,17 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                           color: Color(0xFF64748B),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Rp ${_formatPrice(totalPrice)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0284C7),
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Rp ${_formatPrice(totalPrice)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0284C7),
                   ),
                 ),
               ],
@@ -459,10 +492,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF0284C7),
-                  width: 1.5,
-                ),
+                border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
               ),
               child: const Text(
                 'Lacak Pesanan',

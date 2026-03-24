@@ -3,13 +3,32 @@ import 'package:flutter/services.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final String orderId;
+  final String? orderNumber;
   final List<Map<String, dynamic>> orderItems;
 
   const OrderDetailScreen({
     super.key,
     required this.orderId,
+    this.orderNumber,
     required this.orderItems,
   });
+
+  String get _displayOrderNumber {
+    if (orderNumber != null && orderNumber!.startsWith('ORD-')) {
+      return orderNumber!;
+    }
+
+    if (orderId.startsWith('ORD-')) {
+      return orderId;
+    }
+
+    final compact = orderId.replaceAll('-', '').toUpperCase();
+    if (compact.isEmpty) {
+      return 'ORD-UNKNOWN';
+    }
+    final suffix = compact.length >= 6 ? compact.substring(0, 6) : compact;
+    return 'ORD-$suffix';
+  }
 
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
@@ -24,13 +43,16 @@ class OrderDetailScreen extends StatelessWidget {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   int get _subtotal {
-    return orderItems.fold(0, (sum, item) => sum + (item['price'] as int) * (item['quantity'] as int));
+    return orderItems.fold(
+      0,
+      (sum, item) => sum + (item['price'] as int) * (item['quantity'] as int),
+    );
   }
 
   int get _shippingFee => 10000;
@@ -55,9 +77,9 @@ class OrderDetailScreen extends StatelessWidget {
                 children: [
                   // Order status card
                   _buildOrderStatusCard(),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Order info
                   _buildOrderInfo(context),
 
@@ -159,7 +181,10 @@ class OrderDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(9999),
@@ -226,9 +251,7 @@ class OrderDetailScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +266,7 @@ class OrderDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Order ID
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,7 +285,7 @@ class OrderDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      orderId,
+                      _displayOrderNumber,
                       style: const TextStyle(
                         fontSize: 14,
                         fontFamily: 'Montserrat',
@@ -273,7 +296,7 @@ class OrderDetailScreen extends StatelessWidget {
                   ],
                 ),
                 InkWell(
-                  onTap: () => _copyToClipboard(context, orderId),
+                  onTap: () => _copyToClipboard(context, _displayOrderNumber),
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -290,7 +313,7 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
             const Divider(height: 1, color: Color(0xFFE2E8F0)),
             const SizedBox(height: 16),
@@ -344,9 +367,7 @@ class OrderDetailScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,10 +444,12 @@ class OrderDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          ...orderItems.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildProductItem(item),
-              )),
+          ...orderItems.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildProductItem(item),
+            ),
+          ),
         ],
       ),
     );
@@ -438,9 +461,7 @@ class OrderDetailScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFF1F5F9),
-        ),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -529,9 +550,7 @@ class OrderDetailScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFF1F5F9),
-          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,7 +573,7 @@ class OrderDetailScreen extends StatelessWidget {
             _buildPaymentRow('Biaya Layanan', _serviceFee, false),
             const SizedBox(height: 12),
             _buildPaymentRow('Promo', -_discount, true),
-            
+
             const SizedBox(height: 16),
             const Divider(height: 1, color: Color(0xFFCBD5E1)),
             const SizedBox(height: 16),
@@ -583,9 +602,9 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Payment status
             Container(
               width: double.infinity,
@@ -593,17 +612,11 @@ class OrderDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFECFDF5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFFD1FAE5),
-                ),
+                border: Border.all(color: const Color(0xFFD1FAE5)),
               ),
               child: Row(
                 children: const [
-                  Icon(
-                    Icons.check_circle,
-                    size: 16,
-                    color: Color(0xFF10B981),
-                  ),
+                  Icon(Icons.check_circle, size: 16, color: Color(0xFF10B981)),
                   SizedBox(width: 8),
                   Text(
                     'Pembayaran Berhasil',
@@ -644,7 +657,9 @@ class OrderDetailScreen extends StatelessWidget {
             fontSize: 12,
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.w600,
-            color: isDiscount ? const Color(0xFF10B981) : const Color(0xFF1E293B),
+            color: isDiscount
+                ? const Color(0xFF10B981)
+                : const Color(0xFF1E293B),
           ),
         ),
       ],

@@ -27,7 +27,11 @@ class _CartScreenState extends State<CartScreen> {
   /// Ensure _selectedItems always matches _items length
   void _syncSelection() {
     if (_selectedItems.length != _items.length) {
-      _selectedItems = List.generate(_items.length, (_) => true, growable: true);
+      _selectedItems = List.generate(
+        _items.length,
+        (_) => true,
+        growable: true,
+      );
     }
   }
 
@@ -35,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
     if (_selectedItems.isEmpty) return false;
     return _selectedItems.every((selected) => selected);
   }
-  
+
   int get _selectedCount {
     return _selectedItems.where((selected) => selected).length;
   }
@@ -43,7 +47,11 @@ class _CartScreenState extends State<CartScreen> {
   void _toggleSelectAll() {
     setState(() {
       final newValue = !_allSelected;
-      _selectedItems = List.generate(_items.length, (_) => newValue, growable: true);
+      _selectedItems = List.generate(
+        _items.length,
+        (_) => newValue,
+        growable: true,
+      );
     });
   }
 
@@ -70,7 +78,9 @@ class _CartScreenState extends State<CartScreen> {
     int total = 0;
     for (int i = 0; i < _items.length; i++) {
       if (_selectedItems[i]) {
-        total += (_items[i]['price'] as num).toInt() * (_items[i]['quantity'] as num).toInt();
+        total +=
+            (_items[i]['price'] as num).toInt() *
+            (_items[i]['quantity'] as num).toInt();
       }
     }
     return total;
@@ -112,9 +122,40 @@ class _CartScreenState extends State<CartScreen> {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
+  String? _formatBookingDate(dynamic bookingDate) {
+    DateTime? parsedDate;
+
+    if (bookingDate is DateTime) {
+      parsedDate = bookingDate;
+    } else if (bookingDate is String) {
+      parsedDate = DateTime.tryParse(bookingDate);
+    }
+
+    if (parsedDate == null) {
+      return null;
+    }
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+
+    return '${parsedDate.day} ${monthNames[parsedDate.month - 1]} ${parsedDate.year}';
   }
 
   @override
@@ -132,93 +173,98 @@ class _CartScreenState extends State<CartScreen> {
               // Cart items
               Expanded(
                 child: _items.isEmpty
-                ? _buildEmptyCart()
-                : SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 224),
-                  child: Column(
-                    children: [
-                      // Select All checkbox
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFF1F5F9),
-                          ),
-                        ),
-                        child: InkWell(
-                          onTap: _toggleSelectAll,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: _allSelected
-                                      ? const Color(0xFF0F83BD)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: _allSelected
-                                        ? const Color(0xFF0F83BD)
-                                        : const Color(0xFFCBD5E1),
-                                    width: 2,
-                                  ),
-                                ),
-                                child: _allSelected
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 16,
-                                        color: Colors.white,
-                                      )
-                                    : null,
+                    ? _buildEmptyCart()
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 224),
+                        child: Column(
+                          children: [
+                            // Select All checkbox
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                _allSelected ? 'Batalkan Pilih Semua' : 'Pilih Semua',
-                                style: const TextStyle(
-                                  color: Color(0xFF1E293B),
-                                  fontSize: 14,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w600,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: const Color(0xFFF1F5F9),
                                 ),
                               ),
-                              const Spacer(),
-                              Text(
-                                '$_selectedCount/${_items.length} dipilih',
-                                style: const TextStyle(
-                                  color: Color(0xFF64748B),
-                                  fontSize: 12,
-                                  fontFamily: 'Montserrat',
-                                  fontWeight: FontWeight.w500,
+                              child: InkWell(
+                                onTap: _toggleSelectAll,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: _allSelected
+                                            ? const Color(0xFF0F83BD)
+                                            : Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: _allSelected
+                                              ? const Color(0xFF0F83BD)
+                                              : const Color(0xFFCBD5E1),
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: _allSelected
+                                          ? const Icon(
+                                              Icons.check,
+                                              size: 16,
+                                              color: Colors.white,
+                                            )
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      _allSelected
+                                          ? 'Batalkan Pilih Semua'
+                                          : 'Pilih Semua',
+                                      style: const TextStyle(
+                                        color: Color(0xFF1E293B),
+                                        fontSize: 14,
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      '$_selectedCount/${_items.length} dipilih',
+                                      style: const TextStyle(
+                                        color: Color(0xFF64748B),
+                                        fontSize: 12,
+                                        fontFamily: 'Montserrat',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Shipping info
+                            _buildShippingInfo(),
+                            const SizedBox(height: 24),
+
+                            // Cart items
+                            ..._items.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final item = entry.value;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: _buildCartItem(item, index),
+                              );
+                            }),
+
+                            // Total weight info
+                            _buildWeightInfo(),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      
-                      // Shipping info
-                      _buildShippingInfo(),
-                      const SizedBox(height: 24),
-
-                      // Cart items
-                      ..._items.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: _buildCartItem(item, index),
-                        );
-                      }),
-
-                      // Total weight info
-                      _buildWeightInfo(),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -335,17 +381,11 @@ class _CartScreenState extends State<CartScreen> {
         gradient: const LinearGradient(
           begin: Alignment(0, -1),
           end: Alignment(0, 1),
-          colors: [
-            Color(0xFFECFDF5),
-            Colors.white,
-            Color(0x80ECFDF5),
-          ],
+          colors: [Color(0xFFECFDF5), Colors.white, Color(0x80ECFDF5)],
           stops: [0, 0.5, 1],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0x99D1FAE5),
-        ),
+        border: Border.all(color: const Color(0x99D1FAE5)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0D000000),
@@ -444,16 +484,17 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(Map<String, dynamic> item, int index) {
-    final isSelected = index < _selectedItems.length ? _selectedItems[index] : false;
+    final isSelected = index < _selectedItems.length
+        ? _selectedItems[index]
+        : false;
+    final bookingDateLabel = _formatBookingDate(item['bookingDate']);
     return Container(
-      height: 170,
+      height: bookingDateLabel != null ? 190 : 170,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isSelected 
-              ? const Color(0xFF0F83BD)
-              : const Color(0x80F1F5F9),
+          color: isSelected ? const Color(0xFF0F83BD) : const Color(0x80F1F5F9),
           width: isSelected ? 1.5 : 1,
         ),
         boxShadow: [
@@ -479,9 +520,7 @@ class _CartScreenState extends State<CartScreen> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFF0F83BD)
-                      : Colors.white,
+                  color: isSelected ? const Color(0xFF0F83BD) : Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isSelected
@@ -491,16 +530,12 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 child: isSelected
-                    ? const Icon(
-                        Icons.check,
-                        size: 16,
-                        color: Colors.white,
-                      )
+                    ? const Icon(Icons.check, size: 16, color: Colors.white)
                     : null,
               ),
             ),
           ),
-          
+
           // Product image
           Positioned(
             left: 53,
@@ -610,6 +645,33 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ],
                     ),
+                    if (bookingDateLabel != null) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 12,
+                            color: Color(0xFF64748B),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'Jadwal Panen: $bookingDateLabel',
+                              style: const TextStyle(
+                                color: Color(0xFF64748B),
+                                fontSize: 11,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w500,
+                                height: 1.33,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
 
@@ -654,7 +716,9 @@ class _CartScreenState extends State<CartScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.06),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.06,
+                                      ),
                                       blurRadius: 4,
                                       offset: const Offset(0, 1),
                                     ),
@@ -712,14 +776,19 @@ class _CartScreenState extends State<CartScreen> {
                                 height: 36,
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFF0F83BD), Color(0xFF054F7A)],
+                                    colors: [
+                                      Color(0xFF0F83BD),
+                                      Color(0xFF054F7A),
+                                    ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF0F83BD).withValues(alpha: 0.3),
+                                      color: const Color(
+                                        0xFF0F83BD,
+                                      ).withValues(alpha: 0.3),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -825,14 +894,8 @@ class _CartScreenState extends State<CartScreen> {
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.8),
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(32),
-          ),
-          border: const Border(
-            top: BorderSide(
-              color: Color(0x80F1F5F9),
-            ),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          border: const Border(top: BorderSide(color: Color(0x80F1F5F9))),
           boxShadow: const [
             BoxShadow(
               color: Color(0x1A000000),
@@ -931,26 +994,32 @@ class _CartScreenState extends State<CartScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: _selectedCount > 0 ? () async {
-                    final selectedItems = _selectedCartItems;
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CheckoutScreen(
-                          cartItems: selectedItems,
-                          totalPrice: _totalPrice,
-                        ),
-                      ),
-                    );
-                    // If checkout completed, remove checked-out items from cart
-                    if (result == 'checkout_complete') {
-                      CartStorage.removeCheckedOutItems(selectedItems);
-                      setState(() {
-                        _items = CartStorage.getAllItems();
-                        _selectedItems = List.generate(_items.length, (_) => true, growable: true);
-                      });
-                    }
-                  } : null,
+                  onTap: _selectedCount > 0
+                      ? () async {
+                          final selectedItems = _selectedCartItems;
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CheckoutScreen(
+                                cartItems: selectedItems,
+                                totalPrice: _totalPrice,
+                              ),
+                            ),
+                          );
+                          // If checkout completed, remove checked-out items from cart
+                          if (result == 'checkout_complete') {
+                            CartStorage.removeCheckedOutItems(selectedItems);
+                            setState(() {
+                              _items = CartStorage.getAllItems();
+                              _selectedItems = List.generate(
+                                _items.length,
+                                (_) => true,
+                                growable: true,
+                              );
+                            });
+                          }
+                        }
+                      : null,
                   borderRadius: BorderRadius.circular(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

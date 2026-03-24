@@ -8,10 +8,7 @@ import 'my_orders_screen.dart';
 class HomeScreen extends StatefulWidget {
   final String role;
 
-  const HomeScreen({
-    super.key,
-    required this.role,
-  });
+  const HomeScreen({super.key, required this.role});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -46,9 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openCart() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const CartScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const CartScreen()),
     );
     // Refresh UI after returning from cart
     setState(() {});
@@ -82,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (existingIndex >= 0) {
         final newQuantity = (items[existingIndex]['quantity'] as int) + delta;
         if (newQuantity > 0) {
-          CartStorage.updateItems(items..[existingIndex]['quantity'] = newQuantity);
+          CartStorage.updateItems(
+            items..[existingIndex]['quantity'] = newQuantity,
+          );
         } else {
           CartStorage.removeItem(existingIndex);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> _freshFishProducts = [
     {
       'type': 'fresh',
-      'name': 'Ikan Nila Merah',
+      'name': 'Ikan Nila',
       'description': 'Budidaya Air Deras',
       'price': 35000,
       'stock': '45 kg',
@@ -117,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'type': 'fresh',
-      'name': 'Ikan Bawal Bintang',
+      'name': 'Ikan Bawal',
       'description': 'Premium Quality',
       'price': 65000,
       'stock': 'Besok Pagi',
@@ -132,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
     },
     {
       'type': 'fresh',
-      'name': 'Ikan Lele Sangkuriang',
+      'name': 'Ikan Lele',
       'description': 'Farm Fresh Hygiene',
       'price': 24000,
       'stock': '80 kg',
@@ -289,27 +286,75 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 16),
 
+                      if (_selectedTab == 1) ...[
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0x0D000000,
+                                ).withValues(alpha: 0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                                spreadRadius: 0,
+                                blurStyle: BlurStyle.inner,
+                              ),
+                            ],
+                            border: Border.all(color: const Color(0xFFF1F5F9)),
+                          ),
+                          child: const TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Cari Produk Olahan...',
+                              hintStyle: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFF94A3B8),
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Color(0xFF94A3B8),
+                                size: 18,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 17,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+
                       // Conditional: Large cards for Ikan Segar, Grid for Produk Olahan
                       if (_selectedTab == 0)
                         // Ikan Segar - Large Product Cards
-                        ..._activeProducts.map((product) => Padding(
-                              padding: const EdgeInsets.only(bottom: 24),
-                              child: _buildLargeProductCard(product),
-                            ))
+                        ..._activeProducts.map(
+                          (product) => Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: _buildLargeProductCard(product),
+                          ),
+                        )
                       else
                         // Produk Olahan - 2 Column Grid
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 6,
-                            mainAxisSpacing: 15,
-                            childAspectRatio: 0.52, // Reduced to give more height and fix overflow
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 6,
+                                mainAxisSpacing: 15,
+                                childAspectRatio:
+                                    0.52, // Reduced to give more height and fix overflow
+                              ),
                           itemCount: _processedGridProducts.length,
                           itemBuilder: (context, index) {
-                            return _buildGridProductCard(_processedGridProducts[index]);
+                            return _buildGridProductCard(
+                              _processedGridProducts[index],
+                            );
                           },
                         ),
 
@@ -356,234 +401,40 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Row: Welcome & Icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'MARKETPLACE SEGARA',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0077B6),
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Selamat Datang,\n',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF0F172A),
-                                height: 1.25,
-                              ),
-                            ),
-                            TextSpan(
-                              text: 'Marsidi',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF0077B6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      // Orders Icon
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MyOrdersScreen(),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(9999),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFF1F5F9)),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color(0x0D000000),
-                                blurRadius: 2,
-                                offset: Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Stack(
-                            children: [
-                              const Center(
-                                child: Icon(
-                                  Icons.receipt_long_outlined,
-                                  size: 20,
-                                  color: Color(0xFF475569),
-                                ),
-                              ),
-                              if (OrdersStorage.getOrderCount() > 0)
-                                Positioned(
-                                  right: 6,
-                                  top: 6,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0284C7),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 1.5),
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 16,
-                                      minHeight: 16,
-                                    ),
-                                    child: Text(
-                                      '${OrdersStorage.getOrderCount()}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Notification Icon
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFF1F5F9)),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0D000000),
-                              blurRadius: 2,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          children: [
-                            const Center(
-                              child: Icon(
-                                Icons.notifications_outlined,
-                                size: 20,
-                                color: Color(0xFF475569),
-                              ),
-                            ),
-                            Positioned(
-                              right: 9,
-                              top: 9,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEF4444),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 1),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Avatar
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE2E8F0),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x1A000000),
-                              blurRadius: 6,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.network(
-                            'https://placehold.co/40x40',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.person,
-                                size: 24,
-                                color: Color(0xFF94A3B8),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              const Text(
+                'MARKETPLACE SEGARA',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0077B6),
+                  letterSpacing: 1,
+                ),
               ),
-              const SizedBox(height: 24),
-
-              // Search Bar
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0x0D000000).withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                      spreadRadius: 0,
-                      blurStyle: BlurStyle.inner,
+              const SizedBox(height: 4),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Selamat Datang,\n',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                        height: 1.25,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Marsidi',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0077B6),
+                      ),
                     ),
                   ],
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Cari ikan segar atau olahan...',
-                    hintStyle: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF94A3B8),
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFF94A3B8),
-                      size: 18,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 17,
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Toggle Tab
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
@@ -602,11 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _buildTabButton(
-                        'Ikan Segar',
-                        Icons.water_drop,
-                        0,
-                      ),
+                      child: _buildTabButton('Ikan Segar', Icons.water_drop, 0),
                     ),
                     Expanded(
                       child: _buildTabButton(
@@ -639,8 +486,8 @@ class _HomeScreenState extends State<HomeScreen> {
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           boxShadow: isSelected
-              ? [
-                  const BoxShadow(
+              ? const [
+                  BoxShadow(
                     color: Color(0x0D000000),
                     blurRadius: 2,
                     offset: Offset(0, 1),
@@ -654,7 +501,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? const Color(0xFF0077B6) : const Color(0xFF64748B),
+              color: isSelected
+                  ? const Color(0xFF0077B6)
+                  : const Color(0xFF64748B),
             ),
             const SizedBox(width: 8),
             Text(
@@ -662,7 +511,9 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? const Color(0xFF0077B6) : const Color(0xFF64748B),
+                color: isSelected
+                    ? const Color(0xFF0077B6)
+                    : const Color(0xFF64748B),
               ),
             ),
           ],
@@ -700,7 +551,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
                   child: Image.asset(
                     product['image'] ?? 'assets/images/nilaMerah.png',
                     width: double.infinity,
@@ -726,7 +579,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 16,
                     top: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: product['badgeBg'] ?? const Color(0xE6FFFFFF),
                         borderRadius: BorderRadius.circular(9999),
@@ -743,7 +599,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
-                          color: product['badgeColor'] ?? const Color(0xFF0077B6),
+                          color:
+                              product['badgeColor'] ?? const Color(0xFF0077B6),
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -754,7 +611,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   left: 16,
                   top: 151,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0x99000000),
                       borderRadius: BorderRadius.circular(8),
@@ -810,16 +670,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Text(
-                              product['description'],
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF64748B),
+                            if (_selectedTab == 1)
+                              Text(
+                                product['description'],
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF64748B),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
                           ],
                         ),
                       ),
@@ -850,10 +711,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 16),
 
                   // Divider
-                  Container(
-                    height: 1,
-                    color: const Color(0xFFF8FAFC),
-                  ),
+                  Container(height: 1, color: const Color(0xFFF8FAFC)),
                   const SizedBox(height: 16),
 
                   // Add to Cart Button or Quantity Controls
@@ -880,7 +738,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.06),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.06,
+                                          ),
                                           blurRadius: 4,
                                           offset: const Offset(0, 1),
                                         ),
@@ -902,7 +762,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextSpan(
                                       children: [
                                         TextSpan(
-                                          text: '${_getItemQuantityInCart(product['name'])}',
+                                          text:
+                                              '${_getItemQuantityInCart(product['name'])}',
                                           style: const TextStyle(
                                             color: Color(0xFF1E293B),
                                             fontSize: 15,
@@ -935,14 +796,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     height: 40,
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(
-                                        colors: [Color(0xFF0F83BD), Color(0xFF054F7A)],
+                                        colors: [
+                                          Color(0xFF0F83BD),
+                                          Color(0xFF054F7A),
+                                        ],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: const Color(0xFF0F83BD).withValues(alpha: 0.3),
+                                          color: const Color(
+                                            0xFF0F83BD,
+                                          ).withValues(alpha: 0.3),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
@@ -968,14 +834,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => BookingScreen(product: product),
+                                  builder: (context) =>
+                                      BookingScreen(product: product),
                                 ),
                               );
-                              
+
                               // Add booking item to cart if returned
-                              if (result != null && result is Map<String, dynamic>) {
+                              if (result != null &&
+                                  result is Map<String, dynamic>) {
                                 setState(() {
-                                  CartStorage.addItemWithQuantity(result, result['quantity'] as int? ?? 1);
+                                  CartStorage.addItemWithQuantity(
+                                    result,
+                                    result['quantity'] as int? ?? 1,
+                                  );
                                 });
                               }
                             } else {
@@ -991,7 +862,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFBFDBFE).withValues(alpha: 0.5),
+                                  color: const Color(
+                                    0xFFBFDBFE,
+                                  ).withValues(alpha: 0.5),
                                   blurRadius: 15,
                                   offset: const Offset(0, 10),
                                 ),
@@ -1029,210 +902,226 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildGridProductCard(Map<String, dynamic> product) {
     return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF1F5F9)),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0D000000),
-              blurRadius: 2,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Product Image
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: Container(
-                    width: double.infinity,
-                    height: 169,
-                    color: const Color(0xFFF1F5F9),
-                    child: Image.asset(
-                      product['image'] ?? 'assets/images/nilaMerah.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.image,
-                          size: 48,
-                          color: Color(0xFF94A3B8),
-                        );
-                      },
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Product Image
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  height: 169,
+                  color: const Color(0xFFF1F5F9),
+                  child: Image.asset(
+                    product['image'] ?? 'assets/images/nilaMerah.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.image,
+                        size: 48,
+                        color: Color(0xFF94A3B8),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              // IKANURA Badge
+              Positioned(
+                left: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xE6FFFFFF),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: const Color(0x330077B6)),
+                  ),
+                  child: const Text(
+                    'IKANURA',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0077B6),
                     ),
                   ),
                 ),
-                // IKANURA Badge
+              ),
+              // Discount Badge
+              if (product['discount'] != null)
                 Positioned(
-                  left: 8,
+                  right: 8,
                   top: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xE6FFFFFF),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color: const Color(0x330077B6),
-                      ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
                     ),
-                    child: const Text(
-                      'IKANURA',
-                      style: TextStyle(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0D000000),
+                          blurRadius: 2,
+                          offset: Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      product['discount'],
+                      style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF0077B6),
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                // Discount Badge
-                if (product['discount'] != null)
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ],
+          ),
+
+          // Product Info
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: product['badgeBg'] ?? const Color(0xFFD8F3DC),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: (product['badgeColor'] ?? const Color(0xFF40916C))
+                          .withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    product['badge'] ?? '',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: product['badgeColor'] ?? const Color(0xFF40916C),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Product Name
+                Text(
+                  product['name'],
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                    height: 1.25,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+
+                // Description
+                Text(
+                  product['description'],
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Price & Add Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product['unit'] != null
+                              ? 'Per ${product['unit']}'
+                              : 'Per Pack',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF94A3B8),
+                          ),
+                        ),
+                        Text(
+                          'Rp ${_formatPrice(product['price'])}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF0077B6),
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Cart button for Shopee
+                    Container(
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
+                        color: const Color(0xFFFF6B00),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
                           BoxShadow(
-                            color: Color(0x0D000000),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
+                            color: const Color(
+                              0xFFFF6B00,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
-                      child: Text(
-                        product['discount'],
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _launchShopeeUrl(
+                            product['shopeeUrl'] ?? 'https://shopee.co.id',
+                          ),
+                          child: const Icon(
+                            Icons.shopping_cart_outlined,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
+                ),
               ],
             ),
-
-            // Product Info
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: product['badgeBg'] ?? const Color(0xFFD8F3DC),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: (product['badgeColor'] ?? const Color(0xFF40916C)).withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Text(
-                      product['badge'] ?? '',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: product['badgeColor'] ?? const Color(0xFF40916C),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Product Name
-                  Text(
-                    product['name'],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1E293B),
-                      height: 1.25,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Description
-                  Text(
-                    product['description'],
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Price & Add Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product['unit'] != null ? 'Per ${product['unit']}' : 'Per Pack',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF94A3B8),
-                            ),
-                          ),
-                          Text(
-                            'Rp ${_formatPrice(product['price'])}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0077B6),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Cart button for Shopee
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B00),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFF6B00).withValues(alpha: 0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () => _launchShopeeUrl(product['shopeeUrl'] ?? 'https://shopee.co.id'),
-                            child: const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                                ),
-                              ),
-                            ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1261,11 +1150,7 @@ class _HomeScreenState extends State<HomeScreen> {
           clipBehavior: Clip.none,
           children: [
             const Center(
-              child: Icon(
-                Icons.shopping_cart,
-                color: Colors.white,
-                size: 24,
-              ),
+              child: Icon(Icons.shopping_cart, color: Colors.white, size: 24),
             ),
             Positioned(
               right: -2,
@@ -1277,10 +1162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
-                constraints: const BoxConstraints(
-                  minWidth: 20,
-                  minHeight: 20,
-                ),
+                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                 child: Text(
                   '$_cartItemCount',
                   style: const TextStyle(
@@ -1300,8 +1182,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _formatPrice(int price) {
     return price.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 }
