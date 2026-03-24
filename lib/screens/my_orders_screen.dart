@@ -141,6 +141,26 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
     );
   }
 
+  String _getDisplayOrderNumber(Map<String, dynamic> order) {
+    final rawOrderNumber = order['orderNumber']?.toString();
+    if (rawOrderNumber != null && rawOrderNumber.startsWith('ORD-')) {
+      return rawOrderNumber;
+    }
+
+    final fallback = order['orderId']?.toString() ?? '';
+    if (fallback.startsWith('ORD-')) {
+      return fallback;
+    }
+
+    if (fallback.isEmpty) {
+      return 'ORD-UNKNOWN';
+    }
+
+    final compact = fallback.replaceAll('-', '').toUpperCase();
+    final suffix = compact.length >= 6 ? compact.substring(0, 6) : compact;
+    return 'ORD-$suffix';
+  }
+
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Sedang Diproses':
@@ -292,6 +312,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
 
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final items = order['items'] as List<Map<String, dynamic>>;
+    final displayOrderNumber = _getDisplayOrderNumber(order);
     final totalItems = items.fold<int>(
       0,
       (sum, item) => sum + (item['quantity'] as int),
@@ -304,6 +325,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
           MaterialPageRoute(
             builder: (context) => OrderTrackingScreen(
               orderId: order['orderId'],
+              orderNumber: displayOrderNumber,
               orderItems: items,
             ),
           ),
@@ -346,7 +368,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      order['orderId'],
+                      displayOrderNumber,
                       style: const TextStyle(
                         fontSize: 14,
                         fontFamily: 'Montserrat',
@@ -365,7 +387,9 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
                     color: _getStatusBgColor(order['status']),
                     borderRadius: BorderRadius.circular(9999),
                     border: Border.all(
-                      color: _getStatusColor(order['status']).withValues(alpha: 0.3),
+                      color: _getStatusColor(
+                        order['status'],
+                      ).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
